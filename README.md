@@ -8,9 +8,14 @@ FabricObserver/Observers/QueueObserver.cs
 FabricObserver/Observers/Utilities/AzureStorageConnection.cs
 ```
 
-### Parameters (threshold, ..)
+### Observers parameters (threshold, max values, ..)
 ```
 FabricObserver/PackageRoot/Config/Settings.xml
+```
+
+### App.config
+```
+FabricObserver/App.config
 ```
 
 =======
