@@ -1,14 +1,18 @@
-#Queue observer
+### Queue observer
+```
 FabricObserver/Observers/QueueObserver.cs
+```
 
-#Azure storage connection
+### Azure storage connection
+```
 FabricObserver/Observers/Utilities/AzureStorageConnection.cs
+```
 
-#Parameters (threshold, ..)
+### Parameters (threshold, ..)
+```
 FabricObserver/PackageRoot/Config/Settings.xml
+```
 
-<<<<<<< HEAD
-# fabricObserver
 =======
 # FabricObserver
 
