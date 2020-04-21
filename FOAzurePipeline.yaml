@@ -1,0 +1,170 @@
+pool:
+  name: Hosted Windows 2019 with VS2019
+  demands:
+  - msbuild
+  - visualstudio
+
+steps:
+- task: NuGetToolInstaller@1
+  displayName: 'Use NuGet 5.2.x'
+  inputs:
+    versionSpec: 5.2.x
+
+- task: NuGetCommand@2
+  displayName: 'NuGet restore (.NET Desktop)'
+  inputs:
+    restoreSolution: FabricObserver.sln
+
+- task: VSBuild@1
+  displayName: 'Build - RESTORE ONLY'
+  inputs:
+    solution: FabricObserver.sln
+    msbuildArgs: '/t:Restore'
+    platform: x64
+    configuration: Release
+    msbuildArchitecture: x64
+
+- task: VSBuild@1
+  displayName: 'Build TelemetryLib.csproj'
+  inputs:
+    solution: TelemetryLib/TelemetryLib.csproj
+    msbuildArgs: '/property:AppInsightsKey="AIF-58ef8eab-a250-4b11-aea8-36435e5be1a7"'
+    platform: x64
+    configuration: Release
+    msbuildArchitecture: x64
+
+- task: VSBuild@1
+  displayName: 'Build FabricObserver.csproj'
+  inputs:
+    solution: FabricObserver/FabricObserver.csproj
+    vsVersion: 16.0
+    platform: x64
+    configuration: Release
+    msbuildArchitecture: x64
+
+- task: VSBuild@1
+  displayName: 'Build ClusterObserver.csproj'
+  inputs:
+    solution: ClusterObserver/ClusterObserver.csproj
+    vsVersion: 16.0
+    platform: x64
+    configuration: Release
+    msbuildArchitecture: x64
+
+- task: VSBuild@1
+  displayName: 'Build FabricObserverTests.csproj'
+  inputs:
+    solution: FabricObserverTests/FabricObserverTests.csproj
+    platform: 'any cpu'
+    configuration: Debug
+    msbuildArchitecture: x64
+  enabled: false
+
+- task: VSTest@2
+  displayName: 'VsTest - FabricObserver Unit Tests'
+  inputs:
+    testAssemblyVer2: '$(Parameters.testAssemblyVer2)'
+    vsTestVersion: 16.0
+    runTestsInIsolation: false
+    publishRunAttachments: false
+    rerunFailedTests: true
+  enabled: false
+
+- task: VSBuild@1
+  displayName: 'Build FO sfpkg'
+  inputs:
+    solution: FabricObserverApp/FabricObserverApp.sfproj
+    msbuildArgs: '/t:Package'
+    platform: x64
+    configuration: Release
+
+- task: VSBuild@1
+  displayName: 'Build CO sfpkg'
+  inputs:
+    solution: ClusterObserverApp/ClusterObserverApp.sfproj
+    msbuildArgs: '/t:Package'
+    platform: x64
+    configuration: Release
+
+- task: VSBuild@1
+  displayName: 'Build FOW sfpkg'
+  inputs:
+    solution: FabricObserverWebApp/FabricObserverWebApi.sfproj
+    msbuildArgs: '/t:Package'
+    platform: x64
+    configuration: Release
+
+- powershell: |
+   # Write your PowerShell commands here.
+   
+   Compress-Archive -U -Path "*"  -DestinationPath SignedFO.zip
+   Rename-Item SignedFO.zip  SignedFO.sfpkg
+  errorActionPreference: continue
+  workingDirectory: '$(Build.SourcesDirectory)/FabricObserverApp/pkg/Release'
+  displayName: 'PowerShell Script FO zip -> sfpkg'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: SignedFO sfpkg'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/FabricObserverApp/pkg/Release/SignedFO.sfpkg'
+    ArtifactName: SignedFO
+
+- powershell: |
+   # Write your PowerShell commands here.
+   
+   Compress-Archive -U -Path "*"  -DestinationPath SignedCO.zip
+   Rename-Item SignedCO.zip  SignedCO.sfpkg
+  errorActionPreference: continue
+  workingDirectory: '$(Build.SourcesDirectory)/ClusterObserverApp/pkg/Release'
+  displayName: 'PowerShell Script CO zip -> sfpkg'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: SignedCO sfpkg'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/ClusterObserverApp/pkg/Release/SignedCO.sfpkg'
+    ArtifactName: SignedCO
+
+- powershell: |
+   # Write your PowerShell commands here.
+   
+   Compress-Archive -U -Path "*"  -DestinationPath SignedFOW.zip
+   Rename-Item SignedFOW.zip  SignedFOW.sfpkg
+  errorActionPreference: continue
+  workingDirectory: '$(Build.SourcesDirectory)/FabricObserverWebApp/pkg/Release'
+  displayName: 'PowerShell Script FOW zip -> sfpkg'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: SignedFOW sfpkg'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/FabricObserverWebApp/pkg/Release/SignedFOW.sfpkg'
+    ArtifactName: SignedFOW
+
+- task: DownloadBuildArtifacts@0
+  displayName: 'Download Build Artifacts - FO'
+  inputs:
+    artifactName: SignedFO
+
+- task: DownloadBuildArtifacts@0
+  displayName: 'Download Build Artifacts - CO'
+  inputs:
+    artifactName: SignedCO
+
+- task: DownloadBuildArtifacts@0
+  displayName: 'Download Build Artifacts - FOW'
+  inputs:
+    artifactName: SignedFOW
+
+- task: GitHubRelease@0
+  displayName: 'GitHub release (create)'
+  inputs:
+    gitHubConnection: # Add Your Pipelines Github Connection name
+    tagSource: manual
+    tag: '$(build.buildNumber)'
+    title: FabricObserver
+    releaseNotesSource: input
+    releaseNotes: FabricObserver
+    assets: |
+     $(Build.SourcesDirectory)/FabricObserverApp/pkg/Release/*.sfpkg
+     $(Build.SourcesDirectory)/ClusterObserverApp/pkg/Release/*.sfpkg
+     $(Build.SourcesDirectory)/FabricObserverWebApp/pkg/Release/*.sfpkg
+  continueOnError: true
