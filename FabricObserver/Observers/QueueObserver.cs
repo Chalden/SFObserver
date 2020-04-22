@@ -68,6 +68,24 @@ namespace FabricObserver.Observers
             //Retrieve the cached approximate message count
             int? cachedMessageCount = this.queue.ApproximateMessageCount;
 
+            //Peek top 32 messages of the queue
+            var messages = queue.PeekMessages(32).ToList();
+
+            //Max acceptable DequeueCount
+            int max = 3;
+
+            //Counter of messages with DequeueCount > max 
+            int dequeueCounter = 0;
+            
+            for (var i = 0; i < messages.Count; i++)
+            {
+                var message = messages[i];
+                if (message.DequeueCount >= max)
+                {
+                    dequeueCounter++;
+                }
+            }
+
             string setHealthMessage = null;
             HealthState setState = HealthState.Ok;
 
@@ -93,7 +111,7 @@ namespace FabricObserver.Observers
                 ReportType = HealthReportType.Node,
                 EmitLogEvent = true,
                 NodeName = this.NodeName,
-                HealthMessage = $"" + setHealthMessage,
+                HealthMessage = $"" + setHealthMessage + "\n" + dequeueCounter + " poison message(s)",
                 State = setState,
                 HealthReportTimeToLive = TimeSpan.FromSeconds(30),
             };
