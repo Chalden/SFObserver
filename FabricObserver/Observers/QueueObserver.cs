@@ -33,8 +33,6 @@ namespace FabricObserver.Observers
         //Queue
         public CloudQueue queue;
 
-        public TimeSpan HealthReportTimeToLive { get; set; } = TimeSpan.FromDays(1);
-
         private async Task Initialize(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
@@ -97,7 +95,7 @@ namespace FabricObserver.Observers
                 NodeName = this.NodeName,
                 HealthMessage = $"" + setHealthMessage,
                 State = setState,
-                HealthReportTimeToLive = this.RunInterval > TimeSpan.MinValue ? this.RunInterval : this.HealthReportTimeToLive,
+                HealthReportTimeToLive = TimeSpan.FromSeconds(30),
             };
  
             this.HasActiveFabricErrorOrWarning = true;
