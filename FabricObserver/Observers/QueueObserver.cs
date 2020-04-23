@@ -24,67 +24,101 @@ namespace FabricObserver.Observers
         {
         }
 
-        //Maximum acceptable queue length
-        public int maxLength { get; set; }
+        //Warning queue length
+        public int WarningLength { get; set; }
 
         //Critical queue length
-        public int criticalLength { get; set; }
+        public int CriticalLength { get; set; }
 
-        //Queue
-        public CloudQueue queue;
+        //Queue 
+        private CloudQueue queue;
 
         private async Task Initialize(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
 
-            var varMaxLength = this.GetSettingParameterValue(
+            var WarningLengthAsString = this.GetSettingParameterValue(
             ObserverConstants.QueueObserverConfigurationSectionName,
-            ObserverConstants.QueueObserverMaxLength);
+            ObserverConstants.QueueObserverWarningLength);
 
-            this.maxLength = Convert.ToInt32(varMaxLength);
+            this.WarningLength = Convert.ToInt32(WarningLengthAsString);
 
-            var varCriticalLength = this.GetSettingParameterValue(
+            var CriticalLengthAsString = this.GetSettingParameterValue(
             ObserverConstants.QueueObserverConfigurationSectionName,
             ObserverConstants.QueueObserverCriticalLength);
 
-            this.criticalLength = Convert.ToInt32(varCriticalLength);
+            this.CriticalLength = Convert.ToInt32(CriticalLengthAsString);
         }
 
         public override async Task ObserveAsync(CancellationToken token)
         {
-            Initialize(token);
+            if (this.RunInterval > TimeSpan.MinValue && DateTime.Now.Subtract(this.LastRunDateTime) < this.RunInterval)
+            {
+                return;
+            }
+
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+            
+            await this.Initialize(token).ConfigureAwait(true);
 
             //Queue connection
             this.queue = AzureStorageConnection.queueConnection("queuetest");;
 
-            ReportAsync(token);
+            await this.ReportAsync(token).ConfigureAwait(true);
+
+            this.LastRunDateTime = DateTime.Now;
         }
 
-        public override async Task ReportAsync(CancellationToken token)
+        public override Task ReportAsync(CancellationToken token)
         {
+            if (token.IsCancellationRequested)
+            {
+                return Task.CompletedTask;
+            }
+
             //Fetch the queue attributes
             this.queue.FetchAttributes();
 
             //Retrieve the cached approximate message count
             int? cachedMessageCount = this.queue.ApproximateMessageCount;
 
-            string setHealthMessage = null;
-            HealthState setState = HealthState.Ok;
+            //Peek top 32 messages of the queue
+            var messages = queue.PeekMessages(32).ToList();
 
-            if (cachedMessageCount >= criticalLength && cachedMessageCount < maxLength)
+            //Max acceptable DequeueCount
+            int maxAcceptableDequeueCount = 3;
+
+            //Counter of messages with DequeueCount > max 
+            int dequeueCounter = 0;
+            
+            foreach(var message in messages)
             {
-                setHealthMessage = $"" + cachedMessageCount + " messages in queue.\nYou have reached the warning threshold.";
-                setState = HealthState.Warning;
-
+                if (message.DequeueCount >= maxAcceptableDequeueCount)
+                {
+                    dequeueCounter++;
+                }
             }
-            else if (cachedMessageCount >= maxLength)
+
+            string healthMessage;
+            HealthState state;
+
+            if (cachedMessageCount >= CriticalLength)
             {
-                setHealthMessage = $"" + cachedMessageCount + " messages in queue.\nMaximum acceptable length exceeded.";
-                setState = HealthState.Error;
+                healthMessage = $"{cachedMessageCount} messages in queue.\nMaximum acceptable length exceeded.";
+                state = HealthState.Error;
+            }
+            else if (cachedMessageCount >= WarningLength)
+            {
+                healthMessage = $"{cachedMessageCount} messages in queue.\nYou have reached the warning threshold.";
+                state = HealthState.Warning;
             }
             else
             {
-                setHealthMessage = $"" + cachedMessageCount + " message(s) in queue.";
+                healthMessage = $"{cachedMessageCount} message(s) in queue.";
+                state = HealthState.Ok;
             }
 
             HealthReport healthReport = new Utilities.HealthReport
@@ -93,15 +127,14 @@ namespace FabricObserver.Observers
                 ReportType = HealthReportType.Node,
                 EmitLogEvent = true,
                 NodeName = this.NodeName,
-                HealthMessage = $"" + setHealthMessage,
-                State = setState,
-                HealthReportTimeToLive = TimeSpan.FromSeconds(30),
+                HealthMessage = $"{healthMessage}\n{dequeueCounter} poison message(s).",
+                State = state,
             };
  
             this.HasActiveFabricErrorOrWarning = true;
             this.HealthReporter.ReportHealthToServiceFabric(healthReport);
 
-            await this.ReportAsync(token).ConfigureAwait(true);
+            return Task.CompletedTask;
         }
     }
 }

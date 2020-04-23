@@ -115,8 +115,8 @@ namespace FabricObserver.Observers.Utilities
         // QueueConfigurationObserver.
         public const string QueueObserverName = "QueueObserver";
         public const string QueueObserverConfigurationSectionName = "QueueObserverConfiguration";
+        public const string QueueObserverWarningLength = "WarningLength";
         public const string QueueObserverCriticalLength = "CriticalLength";
-        public const string QueueObserverMaxLength = "MaxLength";
 
         // Telemetry Settings Parameters.
         public const string AiKey = "AppInsightsInstrumentationKey";

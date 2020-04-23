@@ -90,7 +90,7 @@
     <Parameter Name="ResourceUsageDataCapacity" Value="" />
   </Section>
   <Section Name="CertificateObserverConfiguration">
-    <Parameter Name="Enabled" Value="True" />
+    <Parameter Name="Enabled" Value="False" />
     <Parameter Name="EnableTelemetry" Value="False" />
     <!-- Optional: How often does the observer run? For example, CertificateObserver's RunInterval is set to 1 day 
          below, which means it won't run more than once a day (where day = 24 hours.). All observers support a RunInterval parameter.
@@ -105,7 +105,7 @@
     <Parameter Name="AppCertCommonNamesToObserve" Value="[]"/>
   </Section>
   <Section Name="DiskObserverConfiguration">
-    <Parameter Name="Enabled" Value="True" />
+    <Parameter Name="Enabled" Value="False" />
     <Parameter Name="EnableTelemetry" Value="True"/>
     <Parameter Name="EnableVerboseLogging" Value="False" />
     <Parameter Name="MonitorDuration" Value="00:00:05"/>
@@ -148,7 +148,7 @@
     <Parameter Name="ClusterOperationTimeoutSeconds" Value="120" />
   </Section>
   <Section Name="NetworkObserverConfiguration">
-    <Parameter Name="Enabled" Value="True" />
+    <Parameter Name="Enabled" Value="False" />
     <Parameter Name="EnableTelemetry" Value="False" />
     <Parameter Name="EnableVerboseLogging" Value="False" />
     <!-- The target endpoints, which are the only endpoints that matter (default endpoints do not generate warnings.)
@@ -157,7 +157,7 @@
     <Parameter Name="NetworkObserverDataFileName" Value="NetworkObserver.config.json" />
   </Section>
   <Section Name="NodeObserverConfiguration">
-    <Parameter Name="Enabled" Value="True" />
+    <Parameter Name="Enabled" Value="False" />
     <Parameter Name="EnableTelemetry" Value="False" />
     <Parameter Name="MonitorDuration" Value="00:00:15" />
     <Parameter Name="UseCircularBuffer" Value="False"/>
@@ -178,7 +178,7 @@
     <Parameter Name="NetworkWarningEphemeralPorts" Value="5000" />
   </Section>
   <Section Name="OSObserverConfiguration">
-    <Parameter Name="Enabled" Value="True" />
+    <Parameter Name="Enabled" Value="False" />
     <Parameter Name="EnableTelemetry" Value="True"/>
     <Parameter Name="EnableVerboseLogging" Value="False" />
     <Parameter Name="ClusterOperationTimeoutSeconds" Value="120" />
@@ -189,7 +189,9 @@
     <Parameter Name="ClusterOperationTimeoutSeconds" Value="120" />
   </Section>
  <Section Name="QueueObserverConfiguration">
-	<Parameter Name="CriticalLength" Value="2" />
-	<Parameter Name="MaxLength" Value="3" />
+  <Parameter Name="Enabled" Value="True" />
+  <Parameter Name="RunInterval" Value="0.00:00:30" />
+  <Parameter Name="WarningLength" Value="2" />
+	<Parameter Name="CriticalLength" Value="3" />
  </Section>
 </Settings>
