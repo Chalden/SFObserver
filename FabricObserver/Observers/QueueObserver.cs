@@ -105,14 +105,18 @@ namespace FabricObserver.Observers
             string healthMessage;
             HealthState state;
 
+            TimeSpan messageDuration = DateTimeOffset.Now.Subtract(messages[0].InsertionTime.Value);
+            string messageDurationAsString = $"Message exists in queue since {messageDuration.Days} day(s), {messageDuration.Hours} hour(s), " +
+                $"{messageDuration.Minutes} minute(s), {messageDuration.Seconds} second(s), {messageDuration.Milliseconds} millisecond(s)."; 
+
             if (cachedMessageCount >= CriticalLength)
             {
-                healthMessage = $"{cachedMessageCount} messages in queue.\nMaximum acceptable length exceeded.";
+                healthMessage = $"{cachedMessageCount} messages in queue. Critical threshold reached.";
                 state = HealthState.Error;
             }
             else if (cachedMessageCount >= WarningLength)
             {
-                healthMessage = $"{cachedMessageCount} messages in queue.\nYou have reached the warning threshold.";
+                healthMessage = $"{cachedMessageCount} messages in queue. Warning threshold reached.";
                 state = HealthState.Warning;
             }
             else
@@ -127,7 +131,7 @@ namespace FabricObserver.Observers
                 ReportType = HealthReportType.Node,
                 EmitLogEvent = true,
                 NodeName = this.NodeName,
-                HealthMessage = $"{healthMessage}\n{dequeueCounter} poison message(s).",
+                HealthMessage = $"{healthMessage}\n{dequeueCounter} poison message(s).\n{messageDurationAsString}",
                 State = state,
             };
  
