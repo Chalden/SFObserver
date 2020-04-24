@@ -105,20 +105,29 @@ namespace FabricObserver.Observers
             string healthMessage;
             HealthState state;
 
-            if (cachedMessageCount >= CriticalLength)
+            if (cachedMessageCount.HasValue)
             {
-                healthMessage = $"{cachedMessageCount} messages in queue.\nMaximum acceptable length exceeded.";
-                state = HealthState.Error;
+                if (cachedMessageCount >= CriticalLength)
+                {
+                    healthMessage = $"{cachedMessageCount} messages in queue.\nMaximum acceptable length exceeded.";
+                    state = HealthState.Error;
+                }
+                else if (cachedMessageCount >= WarningLength)
+                {
+                    healthMessage = $"{cachedMessageCount} messages in queue.\nYou have reached the warning threshold.";
+                    state = HealthState.Warning;
+                }
+                else
+                {
+                    healthMessage = $"{cachedMessageCount} message(s) in queue.";
+                    state = HealthState.Ok;
+                }
+
+                healthMessage = $"{healthMessage}\n{dequeueCounter} poison message(s).";
             }
-            else if (cachedMessageCount >= WarningLength)
-            {
-                healthMessage = $"{cachedMessageCount} messages in queue.\nYou have reached the warning threshold.";
+            else {
+                healthMessage = $"Impossible to retrieve message count.";
                 state = HealthState.Warning;
-            }
-            else
-            {
-                healthMessage = $"{cachedMessageCount} message(s) in queue.";
-                state = HealthState.Ok;
             }
 
             HealthReport healthReport = new Utilities.HealthReport
@@ -127,7 +136,7 @@ namespace FabricObserver.Observers
                 ReportType = HealthReportType.Node,
                 EmitLogEvent = true,
                 NodeName = this.NodeName,
-                HealthMessage = $"{healthMessage}\n{dequeueCounter} poison message(s).",
+                HealthMessage = healthMessage,
                 State = state,
             };
  
