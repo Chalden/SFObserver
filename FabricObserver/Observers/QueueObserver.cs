@@ -30,6 +30,9 @@ namespace FabricObserver.Observers
         //Critical queue length
         public int CriticalLength { get; set; }
 
+        //Max acceptable dequeue count
+        public int MaxAcceptableDequeueCount { get; set; }
+
         //Queue 
         private CloudQueue queue;
 
@@ -48,6 +51,12 @@ namespace FabricObserver.Observers
             ObserverConstants.QueueObserverCriticalLength);
 
             this.CriticalLength = Convert.ToInt32(CriticalLengthAsString);
+
+            var MaxAcceptableDequeueCountAsString = this.GetSettingParameterValue(
+            ObserverConstants.QueueObserverConfigurationSectionName,
+            ObserverConstants.QueueObserverMaxAcceptableDequeueCount);
+
+            this.CriticalLength = Convert.ToInt32(MaxAcceptableDequeueCountAsString);
         }
 
         public override async Task ObserveAsync(CancellationToken token)
@@ -88,15 +97,12 @@ namespace FabricObserver.Observers
             //Peek top 32 messages of the queue
             var messages = queue.PeekMessages(32).ToList();
 
-            //Max acceptable DequeueCount
-            int maxAcceptableDequeueCount = 3;
-
             //Counter of messages with DequeueCount > max 
             int dequeueCounter = 0;
             
             foreach(var message in messages)
             {
-                if (message.DequeueCount >= maxAcceptableDequeueCount)
+                if (message.DequeueCount >= MaxAcceptableDequeueCount)
                 {
                     dequeueCounter++;
                 }
