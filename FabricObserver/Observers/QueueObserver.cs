@@ -85,53 +85,58 @@ namespace FabricObserver.Observers
             //Retrieve the cached approximate message count
             int? cachedMessageCount = this.queue.ApproximateMessageCount;
 
-            //Peek top 32 messages of the queue
-            var messages = queue.PeekMessages(32).ToList();
-
-            //Max acceptable DequeueCount
-            int maxAcceptableDequeueCount = 3;
-
-            //Counter of messages with DequeueCount > max 
-            int dequeueCounter = 0;
-            
-            foreach(var message in messages)
-            {
-                if (message.DequeueCount >= maxAcceptableDequeueCount)
-                {
-                    dequeueCounter++;
-                }
-            }
-
             string healthMessage;
             HealthState state;
 
-            TimeSpan messageDuration = DateTimeOffset.Now.Subtract(messages[0].InsertionTime.Value);
-            string messageDurationAsString = $"Message exists in queue since {messageDuration.Days} day(s), {messageDuration.Hours} hour(s), " +
-                $"{messageDuration.Minutes} minute(s), {messageDuration.Seconds} second(s), {messageDuration.Milliseconds} millisecond(s)."; 
+            if (cachedMessageCount.HasValue)
+            {
+                //Peek top 32 messages of the queue
+                var messages = queue.PeekMessages(32).ToList();
 
-            if (cachedMessageCount >= CriticalLength)
-            {
-                healthMessage = $"{cachedMessageCount} messages in queue. Critical threshold reached.";
-                state = HealthState.Error;
-            }
-            else if (cachedMessageCount >= WarningLength)
-            {
-                healthMessage = $"{cachedMessageCount} messages in queue. Warning threshold reached.";
+                //Max acceptable DequeueCount
+                int maxAcceptableDequeueCount = 3;
+
+                //Counter of messages with DequeueCount > max 
+                int dequeueCounter = 0;
+
+                foreach (var message in messages)
+                {
+                    if (message.DequeueCount >= maxAcceptableDequeueCount)
+                    {
+                        dequeueCounter++;
+                    }
+                }
+
+                TimeSpan messageDuration = DateTimeOffset.Now.Subtract(messages[0].InsertionTime.Value);
+                string messageDurationAsString = $"Message exists in queue since {messageDuration.Days} day(s), {messageDuration.Hours} hour(s), " +
+                $"{messageDuration.Minutes} minute(s), {messageDuration.Seconds} second(s), {messageDuration.Milliseconds} millisecond(s).";
+
+                if (cachedMessageCount >= CriticalLength)
+                {
+                    healthMessage = $"{cachedMessageCount} messages in queue. Critical threshold reached.";
+                    state = HealthState.Error;
+                }
+                else if (cachedMessageCount >= WarningLength)
+                {
+                    healthMessage = $"{cachedMessageCount} messages in queue. Warning threshold reached.";
+                    state = HealthState.Warning;
+                }
+                else
+                {
+                    healthMessage = $"{cachedMessageCount} message(s) in queue.";
+                    state = HealthState.Ok;
+                }
+            }else{
+                healthMessage = $"Impossible to retrieve message count.";
                 state = HealthState.Warning;
             }
-            else
-            {
-                healthMessage = $"{cachedMessageCount} message(s) in queue.";
-                state = HealthState.Ok;
-            }
-
-            HealthReport healthReport = new Utilities.HealthReport
+                    HealthReport healthReport = new Utilities.HealthReport
             {
                 Observer = this.ObserverName,
                 ReportType = HealthReportType.Node,
                 EmitLogEvent = true,
                 NodeName = this.NodeName,
-                HealthMessage = $"{healthMessage}\n{dequeueCounter} poison message(s).\n{messageDurationAsString}",
+                HealthMessage = $"{healthMessage}",
                 State = state,
             };
  
