@@ -90,40 +90,55 @@ namespace FabricObserver.Observers
 
             if (cachedMessageCount.HasValue)
             {
-                //Peek top 32 messages of the queue
-                var messages = queue.PeekMessages(32).ToList();
-
-                //Max acceptable DequeueCount
-                int maxAcceptableDequeueCount = 3;
-
-                //Counter of messages with DequeueCount > max 
-                int dequeueCounter = 0;
-
-                foreach (var message in messages)
+                if (cachedMessageCount != 0)
                 {
-                    if (message.DequeueCount >= maxAcceptableDequeueCount)
+                    //Peek top 32 messages of the queue
+                    var messages = queue.PeekMessages(32).ToList();
+
+                    //Max acceptable DequeueCount
+                    int maxAcceptableDequeueCount = 3;
+
+                    //Counter of messages with DequeueCount > max 
+                    int dequeueCounter = 0;
+
+                    TimeSpan messageDuration = TimeSpan.Zero;
+
+                    foreach (var message in messages)
                     {
-                        dequeueCounter++;
+                        if (message.DequeueCount >= maxAcceptableDequeueCount)
+                        {
+                            dequeueCounter++;
+                        }
+                        TimeSpan nextMessageDuration = DateTimeOffset.Now.Subtract(message.InsertionTime.Value);
+                        if (TimeSpan.Compare(messageDuration, nextMessageDuration) == -1)
+                        {
+                            messageDuration = nextMessageDuration;
+                        }
                     }
-                }
 
-                TimeSpan messageDuration = DateTimeOffset.Now.Subtract(messages[0].InsertionTime.Value);
-                string messageDurationAsString = $"Message exists in queue since {messageDuration.Days} day(s), {messageDuration.Hours} hour(s), " +
-                $"{messageDuration.Minutes} minute(s), {messageDuration.Seconds} second(s), {messageDuration.Milliseconds} millisecond(s).";
+                    string messageDurationAsString = $"Oldest message exists in queue since {messageDuration.Days} day(s), {messageDuration.Hours} hour(s), " +
+                    $"{messageDuration.Minutes} minute(s), {messageDuration.Seconds} second(s), {messageDuration.Milliseconds} millisecond(s).";
 
-                if (cachedMessageCount >= CriticalLength)
-                {
-                    healthMessage = $"{cachedMessageCount} messages in queue. Critical threshold reached.";
-                    state = HealthState.Error;
-                }
-                else if (cachedMessageCount >= WarningLength)
-                {
-                    healthMessage = $"{cachedMessageCount} messages in queue. Warning threshold reached.";
-                    state = HealthState.Warning;
+                    if (cachedMessageCount >= CriticalLength)
+                    {
+                        healthMessage = $"{cachedMessageCount} messages in queue. Critical threshold reached.";
+                        state = HealthState.Error;
+                    }
+                    else if (cachedMessageCount >= WarningLength)
+                    {
+                        healthMessage = $"{cachedMessageCount} messages in queue. Warning threshold reached.";
+                        state = HealthState.Warning;
+                    }
+                    else
+                    {
+                        healthMessage = $"{cachedMessageCount} message(s) in queue.";
+                        state = HealthState.Ok;
+                    }
+                    healthMessage += $"\n{dequeueCounter} poison message(s).\n\n{messageDurationAsString}";
                 }
                 else
                 {
-                    healthMessage = $"{cachedMessageCount} message(s) in queue.";
+                    healthMessage = $"Queue is empty.";
                     state = HealthState.Ok;
                 }
             }else{
