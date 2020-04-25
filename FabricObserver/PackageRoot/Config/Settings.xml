@@ -194,5 +194,6 @@
   <Parameter Name="WarningLength" Value="2" />
 	<Parameter Name="CriticalLength" Value="3" />
   <Parameter Name="MaxAcceptableDequeueCount" Value="3" />
+  <Parameter Name="QueueName" Value="queuetest" />
  </Section>
 </Settings>

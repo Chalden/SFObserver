@@ -33,6 +33,9 @@ namespace FabricObserver.Observers
         //Max acceptable dequeue count
         public int MaxAcceptableDequeueCount { get; set; }
 
+        //Queue name
+        public string QueueName { get; set; }
+
         //Queue 
         private CloudQueue queue;
 
@@ -57,6 +60,11 @@ namespace FabricObserver.Observers
             ObserverConstants.QueueObserverMaxAcceptableDequeueCount);
 
             this.CriticalLength = Convert.ToInt32(MaxAcceptableDequeueCountAsString);
+
+            this.QueueName = this.GetSettingParameterValue(
+            ObserverConstants.QueueObserverConfigurationSectionName,
+            ObserverConstants.QueueObserverQueueName);
+
         }
 
         public override async Task ObserveAsync(CancellationToken token)
@@ -74,7 +82,7 @@ namespace FabricObserver.Observers
             await this.Initialize(token).ConfigureAwait(true);
 
             //Queue connection
-            this.queue = AzureStorageConnection.queueConnection("queuetest");;
+            this.queue = AzureStorageConnection.queueConnection(QueueName);;
 
             await this.ReportAsync(token).ConfigureAwait(true);
 
