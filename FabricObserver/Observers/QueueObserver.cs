@@ -65,7 +65,7 @@ namespace FabricObserver.Observers
             await this.Initialize(token).ConfigureAwait(true);
 
             //Queue connection
-            this.queue = AzureStorageConnection.queueConnection("queuetest");;
+            this.queue = AzureStorageConnection.queueConnection("queuetest");
 
             await this.ReportAsync(token).ConfigureAwait(true);
 
@@ -93,7 +93,7 @@ namespace FabricObserver.Observers
                 if (cachedMessageCount != 0)
                 {
                     //Peek top 32 messages of the queue
-                    var messages = queue.PeekMessages(32).ToList();
+                    List<CloudQueueMessage> messages = queue.PeekMessages(32).ToList();
 
                     //Max acceptable DequeueCount
                     int maxAcceptableDequeueCount = 3;
@@ -103,14 +103,14 @@ namespace FabricObserver.Observers
 
                     TimeSpan messageDuration = TimeSpan.Zero;
 
-                    foreach (var message in messages)
+                    foreach (CloudQueueMessage message in messages)
                     {
                         if (message.DequeueCount >= maxAcceptableDequeueCount)
                         {
                             dequeueCounter++;
                         }
-                        TimeSpan nextMessageDuration = DateTimeOffset.Now.Subtract(message.InsertionTime.Value);
-                        if (TimeSpan.Compare(messageDuration, nextMessageDuration) == -1)
+                        TimeSpan nextMessageDuration = DateTimeOffset.UtcNow.Subtract(message.InsertionTime.Value.UtcDateTime);
+                        if (messageDuration < nextMessageDuration)
                         {
                             messageDuration = nextMessageDuration;
                         }
