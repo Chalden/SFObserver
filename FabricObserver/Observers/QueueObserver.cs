@@ -82,7 +82,7 @@ namespace FabricObserver.Observers
             await this.Initialize(token).ConfigureAwait(true);
 
             //Queue connection
-            this.queue = AzureStorageConnection.queueConnection(QueueName);;
+            this.queue = AzureStorageConnection.queueConnection(QueueName);
 
             await this.ReportAsync(token).ConfigureAwait(true);
 
@@ -153,7 +153,7 @@ namespace FabricObserver.Observers
                 HealthMessage = healthMessage,
                 State = state,
             };
- 
+
             this.HasActiveFabricErrorOrWarning = true;
             this.HealthReporter.ReportHealthToServiceFabric(healthReport);
 
