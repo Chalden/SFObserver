@@ -67,9 +67,19 @@ namespace FabricObserver.Observers
             //Queue connection
             this.queue = AzureStorageConnection.queueConnection("queuetest");
 
+            if(this.queue == null)
+            {
+                String healthMessage = "Queue doesn't exist.";
+                HealthState state = HealthState.Warning;
+
+                this.sendReport(healthMessage, state);
+
+                return;
+            }
+
             await this.ReportAsync(token).ConfigureAwait(true);
 
-            this.LastRunDateTime = DateTime.Now;
+            this.LastRunDateTime = DateTime.UtcNow;
         }
 
         public override Task ReportAsync(CancellationToken token)
@@ -88,77 +98,101 @@ namespace FabricObserver.Observers
             string healthMessage;
             HealthState state;
 
-            if (cachedMessageCount.HasValue)
+            if (!cachedMessageCount.HasValue)
             {
-                if (cachedMessageCount != 0)
+                healthMessage = "Impossible to retrieve message count.";
+                state = HealthState.Warning;
+
+                this.sendReport(healthMessage, state);
+
+                return Task.CompletedTask;
+            }
+            
+            if (cachedMessageCount == 0)
+            {      
+                healthMessage = "Queue is empty.";
+                state = HealthState.Warning;
+
+                this.sendReport(healthMessage, state);
+
+                return Task.CompletedTask;
+            }
+
+            //Peek top 32 messages of the queue
+            List<CloudQueueMessage> messages = queue.PeekMessages(32).ToList();
+
+            //Max acceptable DequeueCount
+            int maxAcceptableDequeueCount = 3;
+
+            //Counter of messages with DequeueCount > max 
+            int dequeueCounter = 0;
+
+            TimeSpan messageDuration = TimeSpan.Zero;
+
+            foreach (CloudQueueMessage message in messages)
+            {
+                if (message.DequeueCount >= maxAcceptableDequeueCount)
                 {
-                    //Peek top 32 messages of the queue
-                    List<CloudQueueMessage> messages = queue.PeekMessages(32).ToList();
-
-                    //Max acceptable DequeueCount
-                    int maxAcceptableDequeueCount = 3;
-
-                    //Counter of messages with DequeueCount > max 
-                    int dequeueCounter = 0;
-
-                    TimeSpan messageDuration = TimeSpan.Zero;
-
-                    foreach (CloudQueueMessage message in messages)
-                    {
-                        if (message.DequeueCount >= maxAcceptableDequeueCount)
-                        {
-                            dequeueCounter++;
-                        }
-                        TimeSpan nextMessageDuration = DateTimeOffset.UtcNow.Subtract(message.InsertionTime.Value.UtcDateTime);
-                        if (messageDuration < nextMessageDuration)
-                        {
-                            messageDuration = nextMessageDuration;
-                        }
-                    }
-
-                    string messageDurationAsString = $"Oldest message exists in queue since {messageDuration.Days} day(s), {messageDuration.Hours} hour(s), " +
-                    $"{messageDuration.Minutes} minute(s), {messageDuration.Seconds} second(s), {messageDuration.Milliseconds} millisecond(s).";
-
-                    if (cachedMessageCount >= CriticalLength)
-                    {
-                        healthMessage = $"{cachedMessageCount} messages in queue. Critical threshold reached.";
-                        state = HealthState.Error;
-                    }
-                    else if (cachedMessageCount >= WarningLength)
-                    {
-                        healthMessage = $"{cachedMessageCount} messages in queue. Warning threshold reached.";
-                        state = HealthState.Warning;
-                    }
-                    else
-                    {
-                        healthMessage = $"{cachedMessageCount} message(s) in queue.";
-                        state = HealthState.Ok;
-                    }
-                    healthMessage += $"\n{dequeueCounter} poison message(s).\n\n{messageDurationAsString}";
+                    dequeueCounter++;
                 }
-                else
+
+                if (message.InsertionTime == null)
                 {
-                    healthMessage = $"Queue is empty.";
-                    state = HealthState.Ok;
+                    healthMessage = "Impossible to retrieve message insertion time.";
+                    state = HealthState.Warning;
+
+                    this.sendReport(healthMessage, state);
+
+                    return Task.CompletedTask;
                 }
-            }else{
-                healthMessage = $"Impossible to retrieve message count.";
+
+                TimeSpan nextMessageDuration = DateTimeOffset.UtcNow.Subtract(message.InsertionTime.Value.UtcDateTime);
+                if (messageDuration < nextMessageDuration)
+                {
+                    messageDuration = nextMessageDuration;
+                }
+            }
+
+            string messageDurationAsString = $"Oldest message exists in queue since {messageDuration.Days} day(s), {messageDuration.Hours} hour(s), " +
+            $"{messageDuration.Minutes} minute(s), {messageDuration.Seconds} second(s), {messageDuration.Milliseconds} millisecond(s).";
+
+            if (cachedMessageCount >= CriticalLength)
+            {
+                healthMessage = $"{cachedMessageCount} messages in queue. Critical threshold reached.";
+                state = HealthState.Error;
+            }
+            else if (cachedMessageCount >= WarningLength)
+            {
+                healthMessage = $"{cachedMessageCount} messages in queue. Warning threshold reached.";
                 state = HealthState.Warning;
             }
-                    HealthReport healthReport = new Utilities.HealthReport
+            else
+            {
+                healthMessage = $"{cachedMessageCount} message(s) in queue.";
+                state = HealthState.Ok;
+            }
+            healthMessage += $"\n{dequeueCounter} poison message(s).\n\n{messageDurationAsString}";
+               
+            this.sendReport(healthMessage, state);
+
+            return Task.CompletedTask;
+        }
+
+        public void sendReport(String healthMessage, HealthState state)
+        {
+            HealthReport healthReport = new Utilities.HealthReport
             {
                 Observer = this.ObserverName,
                 ReportType = HealthReportType.Node,
                 EmitLogEvent = true,
                 NodeName = this.NodeName,
-                HealthMessage = $"{healthMessage}",
+                HealthMessage = healthMessage,
                 State = state,
             };
- 
+
             this.HasActiveFabricErrorOrWarning = true;
             this.HealthReporter.ReportHealthToServiceFabric(healthReport);
 
-            return Task.CompletedTask;
         }
     }
 }

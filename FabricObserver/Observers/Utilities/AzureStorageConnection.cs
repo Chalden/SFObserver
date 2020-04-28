@@ -22,8 +22,10 @@ namespace FabricObserver.Observers.Utilities
             //Retrieve queue reference
             CloudQueue queue = queueClient.GetQueueReference(queueName);
 
-            //Create queue if not exists
-            queue.CreateIfNotExists();
+            if (!queue.Exists())
+            {
+                return null;
+            }
 
             return queue;
         }
