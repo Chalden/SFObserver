@@ -184,7 +184,7 @@
     <Parameter Name="ClusterOperationTimeoutSeconds" Value="120" />
   </Section>
   <Section Name="SFConfigurationObserverConfiguration">
-    <Parameter Name="Enabled" Value="True" />
+    <Parameter Name="Enabled" Value="False" />
     <Parameter Name="EnableVerboseLogging" Value="False" />
     <Parameter Name="ClusterOperationTimeoutSeconds" Value="120" />
   </Section>
