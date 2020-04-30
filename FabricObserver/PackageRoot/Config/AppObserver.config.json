@@ -27,8 +27,8 @@
   },
   {
     "targetApp": "fabric:/TestApplication",
-    "cpuWarningLimitPercent": 1,
-    "cpuErrorLimitPercent": 10,
-    "memoryWarningLimitPercent": 1
+    "memoryWarningLimitPercent": 5,
+    "memoryErrorLimitPercent": 10
+
   }
 ]

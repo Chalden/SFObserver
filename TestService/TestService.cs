@@ -20,7 +20,7 @@ namespace TestService
 
         Random rand = new Random();
         List<Thread> threads = new List<Thread>();
-
+        List<byte[]> mem = new List<byte[]>();
         /// <summary>
         /// Optional override to create listeners (e.g., TCP, HTTP) for this service replica to handle client or user requests.
         /// </summary>
@@ -39,13 +39,15 @@ namespace TestService
             // TODO: Replace the following sample code with your own logic 
             //       or remove this RunAsync override if it's not needed in your service.
 
-            while (threads.Count < 10)
+            while (true)
             {
-                threads.Add(new Thread(new ThreadStart(KillCore)));
+                //    threads.Add(new Thread(new ThreadStart(KillCore)));
+                mem.Add(new byte[1000000]);
+                Thread.Sleep(1000);
             }
+            
 
-
-            return Task.CompletedTask;
+            //return Task.CompletedTask;
 
         }
         public void KillCore()
