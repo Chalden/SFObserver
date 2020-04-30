@@ -82,10 +82,7 @@ namespace FabricObserver.Observers
             await this.Initialize(token).ConfigureAwait(true);
 
             //Queue connection
-<<<<<<< HEAD
             this.queue = AzureStorageConnection.queueConnection(QueueName);
-=======
-            this.queue = AzureStorageConnection.queueConnection("queuetest");
 
             if(this.queue == null)
             {
@@ -96,7 +93,6 @@ namespace FabricObserver.Observers
 
                 return;
             }
->>>>>>> messagesDuration
 
             await this.ReportAsync(token).ConfigureAwait(true);
 
@@ -174,32 +170,7 @@ namespace FabricObserver.Observers
             string messageDurationAsString = $"Oldest message exists in queue since {messageDuration.Days} day(s), {messageDuration.Hours} hour(s), " +
             $"{messageDuration.Minutes} minute(s), {messageDuration.Seconds} second(s), {messageDuration.Milliseconds} millisecond(s).";
 
-            if (cachedMessageCount.HasValue)
-            {
-<<<<<<< HEAD
-                if (cachedMessageCount >= CriticalLength)
-                {
-                    healthMessage = $"{cachedMessageCount} messages in queue.\nMaximum acceptable length exceeded.";
-                    state = HealthState.Error;
-                }
-                else if (cachedMessageCount >= WarningLength)
-                {
-                    healthMessage = $"{cachedMessageCount} messages in queue.\nYou have reached the warning threshold.";
-                    state = HealthState.Warning;
-                }
-                else
-                {
-                    healthMessage = $"{cachedMessageCount} message(s) in queue.";
-                    state = HealthState.Ok;
-                }
-
-                healthMessage = $"{healthMessage}\n{dequeueCounter} poison message(s).";
-            }
-            else {
-                healthMessage = $"Impossible to retrieve message count.";
-                state = HealthState.Warning;
-            }
-=======
+            if (cachedMessageCount >= CriticalLength) { 
                 healthMessage = $"{cachedMessageCount} messages in queue. Critical threshold reached.";
                 state = HealthState.Error;
             }
@@ -219,7 +190,7 @@ namespace FabricObserver.Observers
 
             return Task.CompletedTask;
         }
->>>>>>> messagesDuration
+
 
         public void sendReport(String healthMessage, HealthState state)
         {
