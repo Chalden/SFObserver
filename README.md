@@ -18,6 +18,13 @@ FabricObserver/PackageRoot/Config/Settings.xml
 FabricObserver/App.config
 ```
 
+### Install packages:
+
+```
+WindowsAzure.Storage
+Microsoft.WindowsAzure.Configuration
+```
+
 =======
 # FabricObserver
 
