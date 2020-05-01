@@ -883,6 +883,54 @@ namespace FabricObserverTests
             objReady?.Dispose();
         }
 
+        [TestMethod]
+        public void Successful_QueueObserver_Run_Cancellation_Via_ObserverManager()
+        {
+            ObserverManager.FabricServiceContext = this.context;
+            ObserverManager.TelemetryEnabled = false;
+            ObserverManager.EtwEnabled = false;
+            ObserverManager.FabricClientInstance = new FabricClient(FabricClientRole.User);
+
+            var stopWatch = new Stopwatch();
+
+            var obs = new QueueObserver
+            {
+                IsEnabled = true,
+                NodeName = "_Test_0",
+            };
+
+            var obsMgr = new ObserverManager(obs)
+            {
+                ApplicationName = "fabric:/TestApp0",
+            };
+
+            var objReady = new ManualResetEventSlim(false);
+
+            stopWatch.Start();
+            var t = Task.Factory.StartNew(() =>
+            {
+                objReady.Set();
+                obsMgr.StartObservers();
+            });
+
+            objReady?.Wait();
+
+            while (!obsMgr.IsObserverRunning && stopWatch.Elapsed.TotalSeconds < 10)
+            {
+                // wait.
+            }
+
+            stopWatch.Stop();
+
+            obsMgr.StopObservers();
+
+            Thread.Sleep(5);
+            Assert.IsFalse(obsMgr.IsObserverRunning);
+
+            obs.Dispose();
+            objReady?.Dispose();
+        }
+
         /****** These tests do NOT work without a running local SF cluster
                 or in an Azure DevOps VSTest Pipeline ******/
 
