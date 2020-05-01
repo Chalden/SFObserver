@@ -298,6 +298,25 @@ namespace FabricObserverTests
             ObserverManager.FabricClientInstance.Dispose();
         }
 
+        [TestMethod]
+        public void QueueObserver_Constructor_test()
+        {
+            ObserverManager.FabricServiceContext = this.context;
+            ObserverManager.FabricClientInstance = new FabricClient(FabricClientRole.User);
+            ObserverManager.TelemetryEnabled = false;
+            ObserverManager.EtwEnabled = false;
+
+            var obs = new QueueObserver();
+
+            Assert.IsTrue(obs.ObserverLogger != null);
+            Assert.IsTrue(obs.CsvFileLogger != null);
+            Assert.IsTrue(obs.HealthReporter != null);
+            Assert.IsTrue(obs.ObserverName == ObserverConstants.QueueObserverName);
+
+            obs.Dispose();
+            ObserverManager.FabricClientInstance.Dispose();
+        }
+
         /// <summary>
         /// .
         /// </summary>

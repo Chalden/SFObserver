@@ -4,10 +4,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace QueueObserverTests
 {
     [TestClass]
-    public class UnitTest1
+    public class UnitTest
     {
         [TestMethod]
-        public void TestMethod1()
+        public void TestMethod()
         {
             Assert.IsTrue(true);
         }
