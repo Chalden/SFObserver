@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FabricObserverWeb", "Fabric
 EndProject
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "FabricObserverWebApi", "FabricObserverWebApp\FabricObserverWebApi.sfproj", "{D7D76690-9650-433F-99DF-7D0FE4975102}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueueTest", "..\QueueTest\QueueTest\QueueTest.csproj", "{9E778702-B580-43F5-AE26-4C669FE44296}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,9 +99,20 @@ Global
 		{D7D76690-9650-433F-99DF-7D0FE4975102}.Release|x64.ActiveCfg = Release|x64
 		{D7D76690-9650-433F-99DF-7D0FE4975102}.Release|x64.Build.0 = Release|x64
 		{D7D76690-9650-433F-99DF-7D0FE4975102}.Release|x64.Deploy.0 = Release|x64
+		{9E778702-B580-43F5-AE26-4C669FE44296}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E778702-B580-43F5-AE26-4C669FE44296}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E778702-B580-43F5-AE26-4C669FE44296}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9E778702-B580-43F5-AE26-4C669FE44296}.Debug|x64.Build.0 = Debug|Any CPU
+		{9E778702-B580-43F5-AE26-4C669FE44296}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E778702-B580-43F5-AE26-4C669FE44296}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E778702-B580-43F5-AE26-4C669FE44296}.Release|x64.ActiveCfg = Release|Any CPU
+		{9E778702-B580-43F5-AE26-4C669FE44296}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9E778702-B580-43F5-AE26-4C669FE44296} = {E27A9B40-7F6A-4C9B-91EC-A8AC6C2DC009}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC046A6F-D408-473A-BF49-6CF00F8E2F44}
