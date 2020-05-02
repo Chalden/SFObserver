@@ -8,12 +8,14 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using FabricClusterObserver.Observers;
+using Moq;
 using FabricObserver.Observers;
 using FabricObserver.Observers.MachineInfoModel;
 using FabricObserver.Observers.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ClusterObserverManager = FabricClusterObserver.Observers.ObserverManager;
 using ObserverManager = FabricObserver.Observers.ObserverManager;
+
 
 /*
 
@@ -1689,6 +1691,25 @@ namespace FabricObserverTests
 
             // observer did not have any internal errors during run.
             Assert.IsFalse(obs.IsUnhealthy);
+
+            obs.Dispose();
+            ObserverManager.FabricClientInstance.Dispose();
+        }
+
+        [TestMethod]
+        public void QueueObserver_Queue_test()
+        {
+            ObserverManager.FabricServiceContext = this.context;
+            ObserverManager.FabricClientInstance = new FabricClient(FabricClientRole.User);
+            ObserverManager.TelemetryEnabled = false;
+            ObserverManager.EtwEnabled = false;
+
+            var obs = new QueueObserver();
+
+            Assert.IsTrue(obs.ObserverLogger != null);
+            Assert.IsTrue(obs.CsvFileLogger != null);
+            Assert.IsTrue(obs.HealthReporter != null);
+            Assert.IsTrue(obs.ObserverName == ObserverConstants.QueueObserverName);
 
             obs.Dispose();
             ObserverManager.FabricClientInstance.Dispose();
