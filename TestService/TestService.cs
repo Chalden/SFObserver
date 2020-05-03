@@ -19,8 +19,13 @@ namespace TestService
         { }
 
         Random rand = new Random();
-        List<Thread> threads = new List<Thread>();
-        List<byte[]> mem = new List<byte[]>();
+
+        //List of threads
+        List<Thread> threadsList = new List<Thread>();
+
+        // List of byte arrays
+        List<byte[]> byteArraysList = new List<byte[]>();
+
         /// <summary>
         /// Optional override to create listeners (e.g., TCP, HTTP) for this service replica to handle client or user requests.
         /// </summary>
@@ -41,14 +46,12 @@ namespace TestService
 
             while (true)
             {
-                //    threads.Add(new Thread(new ThreadStart(KillCore)));
-                mem.Add(new byte[1000000]);
+                //threadsList.Add(new Thread(new ThreadStart(KillCore)));
+                byteArraysList.Add(new byte[1000000]);
                 Thread.Sleep(1000);
             }
             
-
             //return Task.CompletedTask;
-
         }
         public void KillCore()
         {
