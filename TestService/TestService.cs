@@ -39,7 +39,7 @@ namespace TestService
         /// This is the main entry point for your service instance.
         /// </summary>
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service instance.</param>
-        protected override Task RunAsync(CancellationToken cancellationToken)
+        protected override async Task RunAsync(CancellationToken cancellationToken)
         {
             // TODO: Replace the following sample code with your own logic 
             //       or remove this RunAsync override if it's not needed in your service.
@@ -48,7 +48,7 @@ namespace TestService
             {
                 //threadsList.Add(new Thread(new ThreadStart(KillCore)));
                 byteArraysList.Add(new byte[1000000]);
-                Thread.Sleep(1000);
+                await Task.Delay(TimeSpan.FromSeconds(1));
             }
             
             //return Task.CompletedTask;
