@@ -89,7 +89,7 @@ namespace FabricObserver.Observers
                 String healthMessage = "Queue doesn't exist.";
                 HealthState state = HealthState.Warning;
 
-                this.sendReport(healthMessage, state);
+                this.SendReport(healthMessage, state);
 
                 return;
             }
@@ -120,7 +120,7 @@ namespace FabricObserver.Observers
                 healthMessage = "Impossible to retrieve message count.";
                 state = HealthState.Warning;
 
-                this.sendReport(healthMessage, state);
+                this.SendReport(healthMessage, state);
 
                 return Task.CompletedTask;
             }
@@ -130,7 +130,7 @@ namespace FabricObserver.Observers
                 healthMessage = "Queue is empty.";
                 state = HealthState.Warning;
 
-                this.sendReport(healthMessage, state);
+                this.SendReport(healthMessage, state);
 
                 return Task.CompletedTask;
             }
@@ -155,7 +155,7 @@ namespace FabricObserver.Observers
                     healthMessage = "Impossible to retrieve message insertion time.";
                     state = HealthState.Warning;
 
-                    this.sendReport(healthMessage, state);
+                    this.SendReport(healthMessage, state);
 
                     return Task.CompletedTask;
                 }
@@ -186,13 +186,13 @@ namespace FabricObserver.Observers
             }
             healthMessage += $"\n{dequeueCounter} poison message(s).\n\n{messageDurationAsString}";
                
-            this.sendReport(healthMessage, state);
+            this.SendReport(healthMessage, state);
 
             return Task.CompletedTask;
         }
 
 
-        public void sendReport(String healthMessage, HealthState state)
+        public void SendReport(String healthMessage, HealthState state)
         {
             HealthReport healthReport = new Utilities.HealthReport
             {
