@@ -19,11 +19,6 @@ namespace FabricObserver.Observers.Interfaces
 {
     public interface IQueueObserverLogic
     {
-        int WarningLength { get; set; }
-        int CriticalLength { get; set; }
-        int MaxAcceptableDequeueCount { get; set; }
-        string QueueName { get; set; }
-
         Task Initialize(CancellationToken token);
         Task ObserveAsync(CancellationToken token);
         Task ReportAsync(CancellationToken token);

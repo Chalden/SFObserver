@@ -18,8 +18,6 @@ namespace FabricObserver.Observers.Interfaces
 {
     public interface IAzureQueueObserverAccessor
     {
-        ObserverBase observerBase { get; }
-        CloudQueue cloudQueue { get; set; }
         int LoadWarningLength();
         int LoadCriticalLength();
         int LoadMaxAcceptableQueueCount();

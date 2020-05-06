@@ -20,11 +20,11 @@ namespace FabricObserver.Observers
 {
     public class QueueObserverLogic : IQueueObserverLogic
     {
-        private readonly IAzureQueueObserverAccessor queueAccessor;
+        private readonly IAzureQueueObserverAccessor QueueAccessor;
 
         public QueueObserverLogic(IAzureQueueObserverAccessor queueAccessor)
         {
-            this.queueAccessor = queueAccessor;
+            this.QueueAccessor = queueAccessor;
         }
 
         //Warning queue length
@@ -39,13 +39,13 @@ namespace FabricObserver.Observers
         //Queue name
         private string QueueName { get; set; }
 
-        private async Task Initialize(CancellationToken token)
+        public async Task Initialize(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            this.WarningLength = queueAccessor.LoadWarningLength();
-            this.CriticalLength = queueAccessor.LoadCriticalLength();
-            this.MaxAcceptableDequeueCount = queueAccessor.LoadMaxAcceptableQueueCount();
-            this.QueueName = queueAccessor.LoadQueueName();
+            this.WarningLength = QueueAccessor.LoadWarningLength();
+            this.CriticalLength = QueueAccessor.LoadCriticalLength();
+            this.MaxAcceptableDequeueCount = QueueAccessor.LoadMaxAcceptableQueueCount();
+            this.QueueName = QueueAccessor.LoadQueueName();
         }
 
         public async Task ObserveAsync(CancellationToken token)
@@ -53,14 +53,14 @@ namespace FabricObserver.Observers
             await this.Initialize(token).ConfigureAwait(true);
             try
             {
-                queueAccessor.OpenQueue(this.QueueName);
+                QueueAccessor.OpenQueue(this.QueueName);
             }
             catch (Exception QueueName)
             {
                 String healthMessage = $"Queue {this.QueueName} doesn't exist.";
                 HealthState state = HealthState.Warning;
 
-                queueAccessor.SendReport(healthMessage, state);
+                QueueAccessor.SendReport(healthMessage, state);
 
                 return;
             }
@@ -76,10 +76,10 @@ namespace FabricObserver.Observers
             }
 
             //Fetch the queue attributes
-            queueAccessor.Refresh();
+            QueueAccessor.Refresh();
 
             //Retrieve the cached approximate message count
-            int? cachedMessageCount = queueAccessor.TryGetQueueLength();
+            int? cachedMessageCount = QueueAccessor.TryGetQueueLength();
 
             string healthMessage;
             HealthState state;
@@ -89,7 +89,7 @@ namespace FabricObserver.Observers
                 healthMessage = "Impossible to retrieve message count.";
                 state = HealthState.Warning;
 
-                queueAccessor.SendReport(healthMessage, state);
+                QueueAccessor.SendReport(healthMessage, state);
 
                 return Task.CompletedTask;
             }
@@ -99,13 +99,13 @@ namespace FabricObserver.Observers
                 healthMessage = "Queue is empty.";
                 state = HealthState.Warning;
 
-                queueAccessor.SendReport(healthMessage, state);
+                QueueAccessor.SendReport(healthMessage, state);
 
                 return Task.CompletedTask;
             }
 
             //Peek top 32 messages of the queue
-            List<CloudQueueMessage> messages = queueAccessor.PeekMessages(32).ToList();
+            List<CloudQueueMessage> messages = QueueAccessor.PeekMessages(32).ToList();
 
             //Counter of messages with DequeueCount > max 
             int dequeueCounter = 0;
@@ -124,7 +124,7 @@ namespace FabricObserver.Observers
                     healthMessage = "Impossible to retrieve message insertion time.";
                     state = HealthState.Warning;
 
-                    queueAccessor.SendReport(healthMessage, state);
+                    QueueAccessor.SendReport(healthMessage, state);
 
                     return Task.CompletedTask;
                 }
@@ -156,7 +156,7 @@ namespace FabricObserver.Observers
             }
             healthMessage += $"\n{dequeueCounter} poison message(s).\n\n{messageDurationAsString}";
 
-            queueAccessor.SendReport(healthMessage, state);
+            QueueAccessor.SendReport(healthMessage, state);
 
             return Task.CompletedTask;
         }

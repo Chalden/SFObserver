@@ -20,17 +20,17 @@ namespace FabricObserver.Observers.Utilities
 {
     public class AzureQueueObserverAccessor : IAzureQueueObserverAccessor
     {
-        public ObserverBase observerBase { get; }
-        public CloudQueue cloudQueue { get; set; }
+        private ObserverBase ObserverBase { get; }
+        private CloudQueue CloudQueue { get; set; }
 
-    public AzureQueueObserverAccessor(ObserverBase observerBase)
+        public AzureQueueObserverAccessor(ObserverBase observerBase)
         {
-            this.observerBase = observerBase;
+            this.ObserverBase = observerBase;
         }
 
         public int LoadWarningLength()
         {
-            var WarningLengthAsString = observerBase.GetSettingParameterValue(
+            var WarningLengthAsString = ObserverBase.GetSettingParameterValue(
                 ObserverConstants.QueueObserverConfigurationSectionName,
                 ObserverConstants.QueueObserverWarningLength);
 
@@ -39,7 +39,7 @@ namespace FabricObserver.Observers.Utilities
 
         public int LoadCriticalLength()
         {
-            var CriticalLengthAsString = observerBase.GetSettingParameterValue(
+            var CriticalLengthAsString = ObserverBase.GetSettingParameterValue(
                 ObserverConstants.QueueObserverConfigurationSectionName,
                 ObserverConstants.QueueObserverCriticalLength);
 
@@ -48,7 +48,7 @@ namespace FabricObserver.Observers.Utilities
 
         public int LoadMaxAcceptableQueueCount()
         {
-            var MaxAcceptableDequeueCountAsString = observerBase.GetSettingParameterValue(
+            var MaxAcceptableDequeueCountAsString = ObserverBase.GetSettingParameterValue(
                 ObserverConstants.QueueObserverConfigurationSectionName,
                 ObserverConstants.QueueObserverMaxAcceptableDequeueCount);
 
@@ -57,7 +57,7 @@ namespace FabricObserver.Observers.Utilities
 
         public string LoadQueueName()
         {
-            var queueName = observerBase.GetSettingParameterValue(
+            var queueName = ObserverBase.GetSettingParameterValue(
                 ObserverConstants.QueueObserverConfigurationSectionName,
                 ObserverConstants.QueueObserverQueueName);
             return queueName;
@@ -65,8 +65,8 @@ namespace FabricObserver.Observers.Utilities
 
         public void OpenQueue(string queueName)
         {
-            this.cloudQueue = AzureStorageConnection.queueConnection(queueName);
-            if (cloudQueue == null)
+            this.CloudQueue = AzureStorageConnection.queueConnection(queueName);
+            if (CloudQueue == null)
             {
                 throw new Exception(queueName);
             }
@@ -74,33 +74,33 @@ namespace FabricObserver.Observers.Utilities
 
         public void Refresh()
         {
-            this.cloudQueue.FetchAttributes();
+            this.CloudQueue.FetchAttributes();
         }
 
         public int? TryGetQueueLength()
         {
-            return this.cloudQueue.ApproximateMessageCount;
+            return this.CloudQueue.ApproximateMessageCount;
         }
 
         public IEnumerable<CloudQueueMessage> PeekMessages(int length)
         {
-            return cloudQueue.PeekMessages(length);
+            return CloudQueue.PeekMessages(length);
         }
 
         public void SendReport(string healthMessage, HealthState state)
         {
             HealthReport healthReport = new Utilities.HealthReport
             {
-                Observer = this.observerBase.ObserverName,
+                Observer = this.ObserverBase.ObserverName,
                 ReportType = HealthReportType.Node,
                 EmitLogEvent = true,
-                NodeName = this.observerBase.NodeName,
+                NodeName = this.ObserverBase.NodeName,
                 HealthMessage = healthMessage,
                 State = state,
             };
 
-            observerBase.HasActiveFabricErrorOrWarning = true;
-            observerBase.HealthReporter.ReportHealthToServiceFabric(healthReport);
+            ObserverBase.HasActiveFabricErrorOrWarning = true;
+            ObserverBase.HealthReporter.ReportHealthToServiceFabric(healthReport);
         }
     }
 }
