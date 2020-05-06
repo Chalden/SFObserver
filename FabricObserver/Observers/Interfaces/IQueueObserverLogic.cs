@@ -17,18 +17,15 @@ using System.Configuration;
 
 namespace FabricObserver.Observers.Interfaces
 {
-    public class IQueueObserverLogic
+    public interface IQueueObserverLogic
     {
         int WarningLength { get; set; }
         int CriticalLength { get; set; }
         int MaxAcceptableDequeueCount { get; set; }
         string QueueName { get; set; }
 
-        async Task Initialize(CancellationToken token) { }
-        public async Task ObserveAsync(CancellationToken token) { }
-        public Task ReportAsync(CancellationToken token)
-        {
-            return Task.CompletedTask;
-        }
+        Task Initialize(CancellationToken token);
+        Task ObserveAsync(CancellationToken token);
+        Task ReportAsync(CancellationToken token);
     }
 }
