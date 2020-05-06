@@ -53,11 +53,11 @@ namespace FabricObserver.Observers
             await this.Initialize(token).ConfigureAwait(true);
             try
             {
-                queueAccessor.OpenQueue(QueueName);
+                queueAccessor.OpenQueue(this.QueueName);
             }
             catch (Exception QueueName)
             {
-                String healthMessage = "Queue doesn't exist.";
+                String healthMessage = $"Queue {this.QueueName} doesn't exist.";
                 HealthState state = HealthState.Warning;
 
                 queueAccessor.SendReport(healthMessage, state);

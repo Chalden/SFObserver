@@ -20,10 +20,10 @@ namespace FabricObserver.Observers.Utilities
 {
     public class AzureQueueObserverAccessor : IAzureQueueObserverAccessor
     {
-        private readonly ObserverBase observerBase;
-        private CloudQueue cloudQueue = null;
+        public ObserverBase observerBase { get; }
+        public CloudQueue cloudQueue { get; set; }
 
-        public AzureQueueObserverAccessor(ObserverBase observerBase)
+    public AzureQueueObserverAccessor(ObserverBase observerBase)
         {
             this.observerBase = observerBase;
         }

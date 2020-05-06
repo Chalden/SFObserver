@@ -254,6 +254,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Observers\Interfaces\IAzureQueueObserverAccessor.cs" />
+    <Compile Include="Observers\Interfaces\IQueueObserverLogic.cs" />
+    <Compile Include="Observers\QueueObserverLogic.cs" />
+    <Compile Include="Observers\Utilities\AzureQueueObserverAccessor.cs" />
     <Compile Include="Observers\Utilities\AzureStorageConnection.cs" />
     <Compile Include="ConfigurationProvider.cs" />
     <Compile Include="Observers\CertificateObserver.cs" />

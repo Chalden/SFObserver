@@ -21,6 +21,7 @@ namespace FabricObserver.Observers
     public class QueueObserver : ObserverBase
     {
         private readonly IQueueObserverLogic logic;
+
         public QueueObserver()
        : base(ObserverConstants.QueueObserverName)
         {
@@ -47,7 +48,6 @@ namespace FabricObserver.Observers
         public override async Task ReportAsync(CancellationToken token)
         {
             await logic.ReportAsync(token);
-            return Task.CompletedTask;
         }
     }
 }
