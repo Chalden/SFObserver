@@ -8,12 +8,14 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using FabricClusterObserver.Observers;
+using Moq;
 using FabricObserver.Observers;
 using FabricObserver.Observers.MachineInfoModel;
 using FabricObserver.Observers.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ClusterObserverManager = FabricClusterObserver.Observers.ObserverManager;
 using ObserverManager = FabricObserver.Observers.ObserverManager;
+
 
 /*
 
@@ -293,6 +295,25 @@ namespace FabricObserverTests
             Assert.IsTrue(obs.CsvFileLogger != null);
             Assert.IsTrue(obs.HealthReporter != null);
             Assert.IsTrue(obs.ObserverName == ObserverConstants.SfConfigurationObserverName);
+
+            obs.Dispose();
+            ObserverManager.FabricClientInstance.Dispose();
+        }
+
+        [TestMethod]
+        public void QueueObserver_Constructor_test()
+        {
+            ObserverManager.FabricServiceContext = this.context;
+            ObserverManager.FabricClientInstance = new FabricClient(FabricClientRole.User);
+            ObserverManager.TelemetryEnabled = false;
+            ObserverManager.EtwEnabled = false;
+
+            var obs = new QueueObserver();
+
+            Assert.IsTrue(obs.ObserverLogger != null);
+            Assert.IsTrue(obs.CsvFileLogger != null);
+            Assert.IsTrue(obs.HealthReporter != null);
+            Assert.IsTrue(obs.ObserverName == ObserverConstants.QueueObserverName);
 
             obs.Dispose();
             ObserverManager.FabricClientInstance.Dispose();
@@ -858,6 +879,54 @@ namespace FabricObserverTests
             obsMgr.StopObservers();
             Thread.Sleep(5);
 
+            Assert.IsFalse(obsMgr.IsObserverRunning);
+
+            obs.Dispose();
+            objReady?.Dispose();
+        }
+
+        [TestMethod]
+        public void Successful_QueueObserver_Run_Cancellation_Via_ObserverManager()
+        {
+            ObserverManager.FabricServiceContext = this.context;
+            ObserverManager.TelemetryEnabled = false;
+            ObserverManager.EtwEnabled = false;
+            ObserverManager.FabricClientInstance = new FabricClient(FabricClientRole.User);
+
+            var stopWatch = new Stopwatch();
+
+            var obs = new QueueObserver
+            {
+                IsEnabled = true,
+                NodeName = "_Test_0",
+            };
+
+            var obsMgr = new ObserverManager(obs)
+            {
+                ApplicationName = "fabric:/TestApp0",
+            };
+
+            var objReady = new ManualResetEventSlim(false);
+
+            stopWatch.Start();
+            var t = Task.Factory.StartNew(() =>
+            {
+                objReady.Set();
+                obsMgr.StartObservers();
+            });
+
+            objReady?.Wait();
+
+            while (!obsMgr.IsObserverRunning && stopWatch.Elapsed.TotalSeconds < 10)
+            {
+                // wait.
+            }
+
+            stopWatch.Stop();
+
+            obsMgr.StopObservers();
+
+            Thread.Sleep(5);
             Assert.IsFalse(obsMgr.IsObserverRunning);
 
             obs.Dispose();

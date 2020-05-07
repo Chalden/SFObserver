@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FabricObserver.Observers.Utilities
 {
-    class AzureStorageConnection
+    public class AzureStorageConnection
     {
         public static CloudQueue queueConnection(string queueName)
         {
