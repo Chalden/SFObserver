@@ -254,7 +254,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Observers\Interfaces\IAzureQueueObserverAccessor.cs" />
+    <Compile Include="Observers\Interfaces\IQueueObserverAccessor.cs" />
     <Compile Include="Observers\Interfaces\IQueueObserverLogic.cs" />
     <Compile Include="Observers\QueueObserverLogic.cs" />
     <Compile Include="Observers\Utilities\AzureQueueObserverAccessor.cs" />

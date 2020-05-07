@@ -31,7 +31,7 @@ namespace FabricObserver.Observers
 
         public override async Task ObserveAsync(CancellationToken token)
         {
-            if (this.RunInterval > TimeSpan.MinValue && DateTime.Now.Subtract(this.LastRunDateTime) < this.RunInterval)
+            if (this.RunInterval > TimeSpan.MinValue && DateTime.UtcNow.Subtract(this.LastRunDateTime) < this.RunInterval)
             {
                 return;
             }
