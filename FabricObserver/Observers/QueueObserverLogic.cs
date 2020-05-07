@@ -44,7 +44,7 @@ namespace FabricObserver.Observers
             token.ThrowIfCancellationRequested();
             this.WarningLength = QueueAccessor.LoadWarningLength();
             this.CriticalLength = QueueAccessor.LoadCriticalLength();
-            this.MaxAcceptableDequeueCount = QueueAccessor.LoadMaxAcceptableQueueCount();
+            this.MaxAcceptableDequeueCount = QueueAccessor.LoadMaxAcceptableDequeueCount();
             this.QueueName = QueueAccessor.LoadQueueName();
         }
 

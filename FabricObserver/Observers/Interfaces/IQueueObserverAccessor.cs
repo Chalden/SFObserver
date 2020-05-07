@@ -20,7 +20,7 @@ namespace FabricObserver.Observers.Interfaces
     {
         int LoadWarningLength();
         int LoadCriticalLength();
-        int LoadMaxAcceptableQueueCount();
+        int LoadMaxAcceptableDequeueCount();
         string LoadQueueName();
         void OpenQueue(string queueName);
         void Refresh();
