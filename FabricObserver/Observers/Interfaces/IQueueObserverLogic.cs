@@ -19,7 +19,6 @@ namespace FabricObserver.Observers.Interfaces
 {
     public interface IQueueObserverLogic
     {
-        Task Initialize(CancellationToken token);
         Task ObserveAsync(CancellationToken token);
         Task ReportAsync(CancellationToken token);
     }

@@ -25,7 +25,7 @@ namespace FabricObserver.Observers
         public QueueObserver()
        : base(ObserverConstants.QueueObserverName)
         {
-            IAzureQueueObserverAccessor queueAccessor = new AzureQueueObserverAccessor(this);
+            IQueueObserverAccessor queueAccessor = new AzureQueueObserverAccessor(this);
             this.logic = new QueueObserverLogic(queueAccessor);
         }
 

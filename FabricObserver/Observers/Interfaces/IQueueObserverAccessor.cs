@@ -16,7 +16,7 @@ using Microsoft.WindowsAzure.Storage.Queue;
 using System.Configuration;
 namespace FabricObserver.Observers.Interfaces
 {
-    public interface IAzureQueueObserverAccessor
+    public interface IQueueObserverAccessor
     {
         int LoadWarningLength();
         int LoadCriticalLength();

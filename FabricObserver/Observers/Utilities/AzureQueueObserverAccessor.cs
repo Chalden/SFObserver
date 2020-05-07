@@ -18,7 +18,7 @@ using FabricObserver.Observers.Interfaces;
 
 namespace FabricObserver.Observers.Utilities
 {
-    public class AzureQueueObserverAccessor : IAzureQueueObserverAccessor
+    public class AzureQueueObserverAccessor : IQueueObserverAccessor
     {
         private ObserverBase ObserverBase { get; }
         private CloudQueue CloudQueue { get; set; }

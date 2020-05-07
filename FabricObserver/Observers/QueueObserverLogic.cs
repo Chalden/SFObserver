@@ -20,9 +20,9 @@ namespace FabricObserver.Observers
 {
     public class QueueObserverLogic : IQueueObserverLogic
     {
-        private readonly IAzureQueueObserverAccessor QueueAccessor;
+        private readonly IQueueObserverAccessor QueueAccessor;
 
-        public QueueObserverLogic(IAzureQueueObserverAccessor queueAccessor)
+        public QueueObserverLogic(IQueueObserverAccessor queueAccessor)
         {
             this.QueueAccessor = queueAccessor;
         }
@@ -39,7 +39,7 @@ namespace FabricObserver.Observers
         //Queue name
         private string QueueName { get; set; }
 
-        public async Task Initialize(CancellationToken token)
+        private async Task Initialize(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
             this.WarningLength = QueueAccessor.LoadWarningLength();
