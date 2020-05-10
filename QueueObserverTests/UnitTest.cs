@@ -5,6 +5,7 @@ using FabricObserver.Observers.Interfaces;
 using FabricObserver.Observers;
 using FabricObserver.Observers.Utilities;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace QueueObserverTests
 {
@@ -16,16 +17,24 @@ namespace QueueObserverTests
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
 
-            var wrongQueueName = "Wrong queue name";
-
-            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName()).Returns(wrongQueueName);
-            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(wrongQueueName)).Throws(new ArgumentException(wrongQueueName));
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName()).Returns("Wrong queue name");
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(QueueObserverAccessor.LoadQueueName())).Throws(new Exception());
 
             var mockLogic = new Mock<IQueueObserverLogic>(mockAccessor);
 
-            var falseToken = new CancellationToken(false);
+            IQueueObserverAccessor queueAccessor = mockAccessor.Object;
+            IQueueObserverLogic logic = new QueueObserverLogic(queueAccessor);
 
-            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ObserveAsync(falseToken));
+            var falseToken = new CancellationToken(false);
+            var wrongQueueName = queueAccessor.LoadQueueName();
+
+            Assert.ThrowsException<Exception>(() => queueAccessor.OpenQueue(wrongQueueName));
+
+            logic.ObserveAsync(falseToken);
+
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName(), Times.AtLeastOnce());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(wrongQueueName), Times.AtLeastOnce());
+            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ObserveAsync(falseToken), Times.AtLeastOnce());
         }
     }
 }
