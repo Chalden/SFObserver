@@ -36,5 +36,32 @@ namespace QueueObserverTests
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(wrongQueueName), Times.AtLeastOnce());
             mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ObserveAsync(falseToken), Times.AtLeastOnce());
         }
+
+        public void ImpossibleQueueLengthRecovery()
+        {
+            var mockAccessor = new Mock<IQueueObserverAccessor>();
+
+            int? nullLength = null;
+
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(nullLength);
+            
+            var mockLogic = new Mock<QueueObserverLogic>(mockAccessor);
+
+            var falseToken = new CancellationToken(false);
+
+            mockLogic.Setup(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken)).Returns(Task.CompletedTask);
+
+            IQueueObserverAccessor queueAccessor = mockAccessor.Object;
+            IQueueObserverLogic logic = new QueueObserverLogic(queueAccessor);
+
+            var queueLength = queueAccessor.TryGetQueueLength();
+            var task = logic.ReportAsync(falseToken);
+
+            Assert.IsFalse(queueLength.HasValue);
+            Assert.Equals(task,Task.CompletedTask);
+
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.AtLeastOnce());
+            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
+        }
     }
 }
