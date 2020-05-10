@@ -123,5 +123,37 @@ namespace QueueObserverTests
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber), Times.AtLeastOnce());
             mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
         }
+
+        public void HealthReportState()
+        {
+            var mockAccessor = new Mock<IQueueObserverAccessor>();
+
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength()).Returns(3);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength()).Returns(5);
+
+            var mockLogic = new Mock<QueueObserverLogic>(mockAccessor);
+
+            var falseToken = new CancellationToken(false);
+
+            mockLogic.Setup(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken)).Returns(Task.CompletedTask);
+
+            IQueueObserverAccessor queueAccessor = mockAccessor.Object;
+            IQueueObserverLogic logic = new QueueObserverLogic(queueAccessor);
+
+            int ok = 1, warning = 4, error = 7;
+
+            var warningLength = queueAccessor.LoadWarningLength();
+            var criticalLength = queueAccessor.LoadCriticalLength();
+
+            var task = logic.ReportAsync(falseToken); 
+
+            Assert.IsTrue(error >= criticalLength);
+            Assert.IsTrue(warning >= warningLength);
+            Assert.IsFalse(ok >= criticalLength || ok >= warningLength);
+
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength(), Times.AtLeastOnce());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength(), Times.AtLeastOnce());
+            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
+        }
     }
 }
