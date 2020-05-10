@@ -40,6 +40,7 @@ namespace QueueObserverTests
             mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ObserveAsync(falseToken), Times.AtLeastOnce());
         }
 
+        [TestMethod]
         public void ImpossibleQueueLengthRecovery()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
@@ -67,6 +68,7 @@ namespace QueueObserverTests
             mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
         }
 
+        [TestMethod]
         public void EmptyQueueLength()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
@@ -92,6 +94,7 @@ namespace QueueObserverTests
             mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
         }
 
+        [TestMethod]
         public void NullInsertionTimeMessage()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
@@ -124,6 +127,7 @@ namespace QueueObserverTests
             mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
         }
 
+        [TestMethod]
         public void HealthReportState()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
