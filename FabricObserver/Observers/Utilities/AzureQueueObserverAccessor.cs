@@ -46,7 +46,7 @@ namespace FabricObserver.Observers.Utilities
             return Convert.ToInt32(CriticalLengthAsString);
         }
 
-        public int LoadMaxAcceptableQueueCount()
+        public int LoadMaxAcceptableDequeueCount()
         {
             var MaxAcceptableDequeueCountAsString = ObserverBase.GetSettingParameterValue(
                 ObserverConstants.QueueObserverConfigurationSectionName,

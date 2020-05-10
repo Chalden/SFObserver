@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using FabricObserver.Observers.Interfaces;
 using FabricObserver.Observers;
+using FabricObserver.Observers.Utilities;
+using System.Threading;
 
 namespace QueueObserverTests
 {
@@ -10,12 +12,20 @@ namespace QueueObserverTests
     public class UnitTest
     {
         [TestMethod]
-        public void TestMethod()
+        public void ThrowsExceptionIfCantAccessQueue()
         {
-            var MockQOA = new Mock<IQueueObserverAccessor>();
-            MockQOA.Setup(QueueObserverLogic => QueueObserverLogic.LoadWarningLength()).Returns(2);
-            MockQOA.Setup(QueueObserverLogic => QueueObserverLogic.LoadCriticalLength()).Returns(3);
-            MockQOA.Setup(QueueObserverLogic => QueueObserverLogic.LoadMaxAcceptableDequeueCount()).Returns(3);
+            var mockAccessor = new Mock<IQueueObserverAccessor>();
+
+            var wrongQueueName = "Wrong queue name";
+
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName()).Returns(wrongQueueName);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(wrongQueueName)).Throws(new ArgumentException(wrongQueueName));
+
+            var mockLogic = new Mock<IQueueObserverLogic>(mockAccessor);
+
+            var falseToken = new CancellationToken(false);
+
+            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ObserveAsync(falseToken));
         }
     }
 }
