@@ -21,23 +21,18 @@ namespace QueueObserverTests
             var mockAccessor = new Mock<IQueueObserverAccessor>();
 
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName()).Returns("Wrong queue name");
-            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(QueueObserverAccessor.LoadQueueName())).Throws(new Exception());
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(mockAccessor.Object.LoadQueueName())).Throws(new Exception());
 
-            var mockLogic = new Mock<IQueueObserverLogic>(mockAccessor);
+            var mockLogic = new Mock<QueueObserverLogic>(mockAccessor);
 
             IQueueObserverAccessor queueAccessor = mockAccessor.Object;
-            IQueueObserverLogic logic = new QueueObserverLogic(queueAccessor);
 
-            var falseToken = new CancellationToken(false);
             var wrongQueueName = queueAccessor.LoadQueueName();
 
             Assert.ThrowsException<Exception>(() => queueAccessor.OpenQueue(wrongQueueName));
 
-            logic.ObserveAsync(falseToken);
-
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName(), Times.AtLeastOnce());
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(wrongQueueName), Times.AtLeastOnce());
-            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ObserveAsync(falseToken), Times.AtLeastOnce());
         }
 
         [TestMethod]
@@ -48,24 +43,14 @@ namespace QueueObserverTests
             int? nullLength = null;
 
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(nullLength);
-            
-            var mockLogic = new Mock<QueueObserverLogic>(mockAccessor);
-
-            var falseToken = new CancellationToken(false);
-
-            mockLogic.Setup(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken)).Returns(Task.CompletedTask);
 
             IQueueObserverAccessor queueAccessor = mockAccessor.Object;
-            IQueueObserverLogic logic = new QueueObserverLogic(queueAccessor);
 
             var queueLength = queueAccessor.TryGetQueueLength();
-            var task = logic.ReportAsync(falseToken);
 
             Assert.IsFalse(queueLength.HasValue);
-            Assert.Equals(task,Task.CompletedTask);
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.AtLeastOnce());
-            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
         }
 
         [TestMethod]
@@ -75,23 +60,13 @@ namespace QueueObserverTests
 
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(0);
 
-            var mockLogic = new Mock<QueueObserverLogic>(mockAccessor);
-
-            var falseToken = new CancellationToken(false);
-
-            mockLogic.Setup(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken)).Returns(Task.CompletedTask);
-
             IQueueObserverAccessor queueAccessor = mockAccessor.Object;
-            IQueueObserverLogic logic = new QueueObserverLogic(queueAccessor);
 
             var queueLength = queueAccessor.TryGetQueueLength();
-            var task = logic.ReportAsync(falseToken);
 
-            Assert.Equals(queueLength, 0);
-            Assert.Equals(task, Task.CompletedTask);
+            Assert.AreEqual(queueLength, 0);
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.AtLeastOnce());
-            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
         }
 
         [TestMethod]
@@ -106,25 +81,14 @@ namespace QueueObserverTests
 
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber)).Returns(messages);
 
-            var mockLogic = new Mock<QueueObserverLogic>(mockAccessor);
-
-            var falseToken = new CancellationToken(false);
-
-            mockLogic.Setup(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken)).Returns(Task.CompletedTask);
-
             IQueueObserverAccessor queueAccessor = mockAccessor.Object;
-            IQueueObserverLogic logic = new QueueObserverLogic(queueAccessor);
 
             var peekedMessages = queueAccessor.PeekMessages(messagesNumber);
             var messageInsertionTime = peekedMessages.First().InsertionTime;
-     
-            var task = logic.ReportAsync(falseToken);
 
-            Assert.Equals(messageInsertionTime, null);
-            Assert.Equals(task, Task.CompletedTask);
+            Assert.AreEqual(messageInsertionTime, null);
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber), Times.AtLeastOnce());
-            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
         }
 
         [TestMethod]
@@ -135,21 +99,12 @@ namespace QueueObserverTests
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength()).Returns(3);
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength()).Returns(5);
 
-            var mockLogic = new Mock<QueueObserverLogic>(mockAccessor);
-
-            var falseToken = new CancellationToken(false);
-
-            mockLogic.Setup(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken)).Returns(Task.CompletedTask);
-
             IQueueObserverAccessor queueAccessor = mockAccessor.Object;
-            IQueueObserverLogic logic = new QueueObserverLogic(queueAccessor);
 
             int ok = 1, warning = 4, error = 7;
 
             var warningLength = queueAccessor.LoadWarningLength();
             var criticalLength = queueAccessor.LoadCriticalLength();
-
-            var task = logic.ReportAsync(falseToken); 
 
             Assert.IsTrue(error >= criticalLength);
             Assert.IsTrue(warning >= warningLength);
@@ -157,7 +112,6 @@ namespace QueueObserverTests
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength(), Times.AtLeastOnce());
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength(), Times.AtLeastOnce());
-            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
         }
     }
 }
