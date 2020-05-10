@@ -23,8 +23,6 @@ namespace QueueObserverTests
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName()).Returns("Wrong queue name");
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(mockAccessor.Object.LoadQueueName())).Throws(new Exception());
 
-            var mockLogic = new Mock<QueueObserverLogic>(mockAccessor);
-
             IQueueObserverAccessor queueAccessor = mockAccessor.Object;
 
             var wrongQueueName = queueAccessor.LoadQueueName();
