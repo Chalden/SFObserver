@@ -6,6 +6,9 @@ using FabricObserver.Observers;
 using FabricObserver.Observers.Utilities;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage.Queue;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace QueueObserverTests
 {
@@ -86,6 +89,38 @@ namespace QueueObserverTests
             Assert.Equals(task, Task.CompletedTask);
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.AtLeastOnce());
+            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
+        }
+
+        public void NullInsertionTimeMessage()
+        {
+            var mockAccessor = new Mock<IQueueObserverAccessor>();
+
+            var messagesNumber = 32;
+
+            var message = new CloudQueueMessage("Bad message");
+            IEnumerable<CloudQueueMessage> messages = new List<CloudQueueMessage>(){ message };
+
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber)).Returns(messages);
+
+            var mockLogic = new Mock<QueueObserverLogic>(mockAccessor);
+
+            var falseToken = new CancellationToken(false);
+
+            mockLogic.Setup(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken)).Returns(Task.CompletedTask);
+
+            IQueueObserverAccessor queueAccessor = mockAccessor.Object;
+            IQueueObserverLogic logic = new QueueObserverLogic(queueAccessor);
+
+            var peekedMessages = queueAccessor.PeekMessages(messagesNumber);
+            var messageInsertionTime = peekedMessages.First().InsertionTime;
+     
+            var task = logic.ReportAsync(falseToken);
+
+            Assert.Equals(messageInsertionTime, null);
+            Assert.Equals(task, Task.CompletedTask);
+
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber), Times.AtLeastOnce());
             mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(falseToken), Times.AtLeastOnce());
         }
     }
