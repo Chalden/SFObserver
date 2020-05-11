@@ -50,7 +50,18 @@ namespace FabricObserver.Observers
 
         public async Task ObserveAsync(CancellationToken token)
         {
-            await this.Initialize(token).ConfigureAwait(true);
+            try
+            {
+                await this.Initialize(token).ConfigureAwait(true);
+            }catch(Exception Initialize)
+            {
+                String healthMessage = $"Impossible to initialize parameters.";
+                HealthState state = HealthState.Warning;
+
+                QueueAccessor.SendReport(healthMessage, state);
+
+                return;
+            }
             try
             {
                 QueueAccessor.OpenQueue(this.QueueName);
