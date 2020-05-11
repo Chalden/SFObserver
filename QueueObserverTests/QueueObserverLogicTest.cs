@@ -17,7 +17,7 @@ namespace QueueObserverTests
     public class QueueObserverLogicTest
     {
         [TestMethod]
-        public void WarningStateIfImpossibleAccessQueue()
+        public async Task WarningStateIfImpossibleAccessQueue()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
             var wrongQueueName = "Wrong queue name";
@@ -28,7 +28,7 @@ namespace QueueObserverTests
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning));
 
             IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
-            logic.ObserveAsync(cancellationToken);
+            await logic.ObserveAsync(cancellationToken);
 
             var mockLogic = new Mock<IQueueObserverLogic>();
 
@@ -38,23 +38,22 @@ namespace QueueObserverTests
         }
 
         [TestMethod]
-        public void WarningStateIfImpossibleQueueLengthRecovery()
+        public async Task WarningStateIfImpossibleQueueLengthRecovery()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
-            int? nullLength = null;
             var cancellationToken = new CancellationToken(false);
 
-            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(nullLength);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(default(int));
 
             IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
-            logic.ReportAsync(cancellationToken);
+            await logic.ReportAsync(cancellationToken);
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning), Times.Once());
         }
 
         [TestMethod]
-        public void WarningStateIfEmptyQueueLength()
+        public async Task WarningStateIfEmptyQueueLength()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
             var length = 0;
@@ -63,14 +62,14 @@ namespace QueueObserverTests
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(length);
 
             IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
-            logic.ReportAsync(cancellationToken);
+            await logic.ReportAsync(cancellationToken);
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning), Times.Once());
         }
 
         [TestMethod]
-        public void WarningStateIfImpossibleMessageAttributesRecovery()
+        public async Task WarningStateIfImpossibleMessageAttributesRecovery()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
             var messagesNumber = 32;
@@ -83,7 +82,7 @@ namespace QueueObserverTests
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning));
 
             IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
-            logic.ReportAsync(cancellationToken);
+            await logic.ReportAsync(cancellationToken);
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber), Times.Once());
@@ -91,7 +90,7 @@ namespace QueueObserverTests
         }
 
         [TestMethod]
-        public void SendWarningHealthState()
+        public async Task SendWarningHealthState()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
             var messagesNumber = 32;
@@ -105,7 +104,7 @@ namespace QueueObserverTests
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning));
 
             IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
-            logic.ObserveAsync(cancellationToken);
+            await logic.ObserveAsync(cancellationToken);
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength(), Times.Once());
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
@@ -114,7 +113,7 @@ namespace QueueObserverTests
         }
 
         [TestMethod]
-        public void SendErrorHealthState()
+        public async Task SendErrorHealthState()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
             var messagesNumber = 32;
@@ -128,7 +127,7 @@ namespace QueueObserverTests
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Error));
 
             IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
-            logic.ObserveAsync(cancellationToken);
+            await logic.ObserveAsync(cancellationToken);
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength(), Times.Once());
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
@@ -137,7 +136,7 @@ namespace QueueObserverTests
         }
 
         [TestMethod]
-        public void SendOkHealthState()
+        public async Task SendOkHealthState()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
             var messagesNumber = 32;
@@ -151,7 +150,7 @@ namespace QueueObserverTests
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Ok));
 
             IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
-            logic.ObserveAsync(cancellationToken);
+            await logic.ObserveAsync(cancellationToken);
 
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength(), Times.Once());
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
@@ -160,13 +159,13 @@ namespace QueueObserverTests
         }
 
         [TestMethod]
-        public void ExitFunctionIfCancellationRequested()
+        public async Task ExitFunctionIfCancellationRequested()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
             var cancellationToken = new CancellationToken(true);
 
             IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
-            logic.ReportAsync(cancellationToken);
+            await logic.ReportAsync(cancellationToken);
 
             mockAccessor.VerifyNoOtherCalls();
         }

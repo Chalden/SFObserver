@@ -53,9 +53,9 @@ namespace FabricObserver.Observers
             try
             {
                 await this.Initialize(token).ConfigureAwait(true);
-            }catch(Exception Initialize)
+            }catch(Exception exception)
             {
-                String healthMessage = $"Impossible to initialize parameters.";
+                String healthMessage = $"Impossible to initialize parameters. ({exception})";
                 HealthState state = HealthState.Warning;
 
                 QueueAccessor.SendReport(healthMessage, state);
