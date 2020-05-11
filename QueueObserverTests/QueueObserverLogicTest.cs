@@ -13,7 +13,7 @@ using System.Linq;
 namespace QueueObserverTests
 {
     [TestClass]
-    public class UnitTest
+    public class QueueObserverLogicTest
     {
         [TestMethod]
         public void ThrowsExceptionIfCantAccessQueue()
