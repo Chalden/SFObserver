@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Queue;
 using System.Collections.Generic;
 using System.Linq;
+using System.Fabric.Health;
 
 namespace QueueObserverTests
 {
@@ -16,21 +17,23 @@ namespace QueueObserverTests
     public class QueueObserverLogicTest
     {
         [TestMethod]
-        public void ThrowsExceptionIfCantAccessQueue()
+        public void WarningStateIfImpossibleAccessQueue()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
+            var wrongQueueName = "Wrong queue name";
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName()).Returns(wrongQueueName);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(wrongQueueName)).Throws(new Exception());
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning));
+            
+            IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
+            logic.ObserveAsync(new CancellationToken());
 
-            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName()).Returns("Wrong queue name");
-            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(mockAccessor.Object.LoadQueueName())).Throws(new Exception());
+            var mockLogic = new Mock<IQueueObserverLogic>();
 
-            IQueueObserverAccessor queueAccessor = mockAccessor.Object;
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(wrongQueueName), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning), Times.Once());
+            mockLogic.Verify(QueueObserverLogic => QueueObserverLogic.ReportAsync(new CancellationToken()), Times.Never());
 
-            var wrongQueueName = queueAccessor.LoadQueueName();
-
-            Assert.ThrowsException<Exception>(() => queueAccessor.OpenQueue(wrongQueueName));
-
-            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName(), Times.AtLeastOnce());
-            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(wrongQueueName), Times.AtLeastOnce());
         }
 
         [TestMethod]
