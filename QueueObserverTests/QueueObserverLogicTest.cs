@@ -54,19 +54,19 @@ namespace QueueObserverTests
         }
 
         [TestMethod]
-        public void EmptyQueueLength()
+        public void WarningStateIfEmptyQueueLength()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
+            var length = 0;
+            var cancellationToken = new CancellationToken(false);
 
-            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(0);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(length);
 
-            IQueueObserverAccessor queueAccessor = mockAccessor.Object;
+            IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
+            logic.ReportAsync(cancellationToken);
 
-            var queueLength = queueAccessor.TryGetQueueLength();
-
-            Assert.AreEqual(queueLength, 0);
-
-            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.AtLeastOnce());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning), Times.Once());
         }
 
         [TestMethod]
