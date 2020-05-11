@@ -91,26 +91,72 @@ namespace QueueObserverTests
         }
 
         [TestMethod]
-        public void HealthReportState()
+        public void SendWarningHealthState()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
+            var messagesNumber = 32;
+            var cancellationToken = new CancellationToken(false);
+            IEnumerable<CloudQueueMessage> messages = new List<CloudQueueMessage>() {};
+            
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength()).Returns(3);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(4);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength()).Returns(5);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber)).Returns(messages);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning));
+
+            IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
+            logic.ObserveAsync(cancellationToken);
+
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning), Times.Once());
+        }
+
+        [TestMethod]
+        public void SendErrorHealthState()
+        {
+            var mockAccessor = new Mock<IQueueObserverAccessor>();
+            var messagesNumber = 32;
+            var cancellationToken = new CancellationToken(false);
+            IEnumerable<CloudQueueMessage> messages = new List<CloudQueueMessage>() { };
 
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength()).Returns(3);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(6);
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength()).Returns(5);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber)).Returns(messages);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Error));
 
-            IQueueObserverAccessor queueAccessor = mockAccessor.Object;
+            IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
+            logic.ObserveAsync(cancellationToken);
 
-            int ok = 1, warning = 4, error = 7;
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Error), Times.Once());
+        }
 
-            var warningLength = queueAccessor.LoadWarningLength();
-            var criticalLength = queueAccessor.LoadCriticalLength();
+        [TestMethod]
+        public void SendOkHealthState()
+        {
+            var mockAccessor = new Mock<IQueueObserverAccessor>();
+            var messagesNumber = 32;
+            var cancellationToken = new CancellationToken(false);
+            IEnumerable<CloudQueueMessage> messages = new List<CloudQueueMessage>() { };
 
-            Assert.IsTrue(error >= criticalLength);
-            Assert.IsTrue(warning >= warningLength);
-            Assert.IsFalse(ok >= criticalLength || ok >= warningLength);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength()).Returns(3);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(2);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength()).Returns(5);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber)).Returns(messages);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Ok));
 
-            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength(), Times.AtLeastOnce());
-            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength(), Times.AtLeastOnce());
+            IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
+            logic.ObserveAsync(cancellationToken);
+
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Ok), Times.Once());
         }
     }
 }
