@@ -114,19 +114,19 @@ namespace FabricObserver.Observers
 
             foreach (CloudQueueMessage message in messages)
             {
-                if (message.DequeueCount >= MaxAcceptableDequeueCount)
+                if (!message.InsertionTime.HasValue)
                 {
-                    dequeueCounter++;
-                }
-
-                if (message.InsertionTime == null)
-                {
-                    healthMessage = "Impossible to retrieve message insertion time.";
+                    healthMessage = "Impossible to retrieve message attribute(s) time.";
                     state = HealthState.Warning;
 
                     QueueAccessor.SendReport(healthMessage, state);
 
                     return Task.CompletedTask;
+                }
+
+                if (message.DequeueCount >= MaxAcceptableDequeueCount)
+                {
+                    dequeueCounter++;
                 }
 
                 TimeSpan nextMessageDuration = DateTimeOffset.UtcNow.Subtract(message.InsertionTime.Value.UtcDateTime);

@@ -70,25 +70,24 @@ namespace QueueObserverTests
         }
 
         [TestMethod]
-        public void NullInsertionTimeMessage()
+        public void WarningStateIfImpossibleMessageAttributesRecovery()
         {
             var mockAccessor = new Mock<IQueueObserverAccessor>();
-
             var messagesNumber = 32;
-
+            var cancellationToken = new CancellationToken(false);
             var message = new CloudQueueMessage("Bad message");
-            IEnumerable<CloudQueueMessage> messages = new List<CloudQueueMessage>(){ message };
+            IEnumerable<CloudQueueMessage> messages = new List<CloudQueueMessage>() { message };
 
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(messages.Count());
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber)).Returns(messages);
+            mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning));
 
-            IQueueObserverAccessor queueAccessor = mockAccessor.Object;
+            IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
+            logic.ReportAsync(cancellationToken);
 
-            var peekedMessages = queueAccessor.PeekMessages(messagesNumber);
-            var messageInsertionTime = peekedMessages.First().InsertionTime;
-
-            Assert.AreEqual(messageInsertionTime, null);
-
-            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber), Times.AtLeastOnce());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.PeekMessages(messagesNumber), Times.Once());
+            mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning), Times.Once());
         }
 
         [TestMethod]
