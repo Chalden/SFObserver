@@ -26,7 +26,7 @@ namespace QueueObserverTests
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadQueueName()).Returns(wrongQueueName);
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.OpenQueue(wrongQueueName)).Throws(new Exception());
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Warning));
-            
+
             IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
             logic.ObserveAsync(cancellationToken);
 
@@ -96,8 +96,8 @@ namespace QueueObserverTests
             var mockAccessor = new Mock<IQueueObserverAccessor>();
             var messagesNumber = 32;
             var cancellationToken = new CancellationToken(false);
-            IEnumerable<CloudQueueMessage> messages = new List<CloudQueueMessage>() {};
-            
+            IEnumerable<CloudQueueMessage> messages = new List<CloudQueueMessage>() { };
+
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadWarningLength()).Returns(3);
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength()).Returns(4);
             mockAccessor.Setup(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength()).Returns(5);
@@ -157,6 +157,18 @@ namespace QueueObserverTests
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.TryGetQueueLength(), Times.Once());
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.LoadCriticalLength(), Times.Once());
             mockAccessor.Verify(QueueObserverAccessor => QueueObserverAccessor.SendReport(It.IsAny<string>(), HealthState.Ok), Times.Once());
+        }
+
+        [TestMethod]
+        public void ExitFunctionIfCancellationRequested()
+        {
+            var mockAccessor = new Mock<IQueueObserverAccessor>();
+            var cancellationToken = new CancellationToken(true);
+
+            IQueueObserverLogic logic = new QueueObserverLogic(mockAccessor.Object);
+            logic.ReportAsync(cancellationToken);
+
+            mockAccessor.VerifyNoOtherCalls();
         }
     }
 }
