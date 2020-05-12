@@ -108,7 +108,7 @@ namespace FabricObserver.Observers
             if (cachedMessageCount == 0)
             {
                 healthMessage = "Queue is empty.";
-                state = HealthState.Warning;
+                state = HealthState.Ok;
 
                 QueueAccessor.SendReport(healthMessage, state);
 
