@@ -78,16 +78,19 @@ namespace FabricObserver.Observers.Utilities
 
         public void Refresh()
         {
+            CheckBeforeUsingQueue();
             this.CloudQueue.FetchAttributes();
         }
 
         public int? TryGetQueueLength()
         {
+            CheckBeforeUsingQueue();
             return this.CloudQueue.ApproximateMessageCount;
         }
 
         public IEnumerable<CloudQueueMessage> PeekMessages(int length)
         {
+            CheckBeforeUsingQueue();
             return CloudQueue.PeekMessages(length);
         }
 
