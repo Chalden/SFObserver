@@ -120,6 +120,10 @@ namespace FabricObserver.Observers.Utilities
         public const string QueueObserverMaxAcceptableDequeueCount = "MaxAcceptableDequeueCount";
         public const string QueueObserverQueueName = "QueueName";
 
+        // NetzorkIOConfigurationObserver.
+        public const string NetworkIOObserverName = "NetworkIOObserver";
+        public const string NetworkIOConfigurationSectionName = "NetworkIOObserverConfiguration";
+
         // Telemetry Settings Parameters.
         public const string AiKey = "AppInsightsInstrumentationKey";
         public const string TelemetryEnabled = "EnableTelemetryProvider";

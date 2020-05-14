@@ -15,7 +15,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ClusterObserverManager = FabricClusterObserver.Observers.ObserverManager;
 using ObserverManager = FabricObserver.Observers.ObserverManager;
 
-
 /*
 
  Many of these tests will work without the presence of a Fabric runtime (so, no running cluster).
