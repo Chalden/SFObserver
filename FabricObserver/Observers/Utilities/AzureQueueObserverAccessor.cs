@@ -111,7 +111,7 @@ namespace FabricObserver.Observers.Utilities
         {
             if (!IsOpenQueueCalled)
             {
-                throw new Exception("CloudQueue has to be initialized.");               
+                throw new Exception("CloudQueue was initialized.");               
             }
         }
     }
