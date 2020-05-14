@@ -15,6 +15,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 using System.Configuration;
 using FabricObserver.Observers.Interfaces;
+using System.CodeDom;
 
 namespace FabricObserver.Observers.Utilities
 {
@@ -22,6 +23,8 @@ namespace FabricObserver.Observers.Utilities
     {
         private ObserverBase ObserverBase { get; }
         private CloudQueue CloudQueue { get; set; }
+
+        private bool IsOpenQueueCalled = false; 
 
         public AzureQueueObserverAccessor(ObserverBase observerBase)
         {
@@ -70,6 +73,7 @@ namespace FabricObserver.Observers.Utilities
             {
                 throw new Exception(queueName);
             }
+            IsOpenQueueCalled = true;
         }
 
         public void Refresh()
@@ -101,6 +105,14 @@ namespace FabricObserver.Observers.Utilities
 
             ObserverBase.HasActiveFabricErrorOrWarning = true;
             ObserverBase.HealthReporter.ReportHealthToServiceFabric(healthReport);
+        }
+
+        private void CheckBeforeUsingQueue()
+        {
+            if (!IsOpenQueueCalled)
+            {
+                throw new Exception("CloudQueue has to be initialized.");               
+            }
         }
     }
 }
