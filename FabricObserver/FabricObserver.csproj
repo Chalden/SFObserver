@@ -256,7 +256,6 @@
   <ItemGroup>
     <Compile Include="Observers\Interfaces\IQueueObserverAccessor.cs" />
     <Compile Include="Observers\Interfaces\IQueueObserverLogic.cs" />
-    <Compile Include="Observers\NetworkIOObserver.cs" />
     <Compile Include="Observers\QueueObserverLogic.cs" />
     <Compile Include="Observers\Utilities\AzureQueueObserverAccessor.cs" />
     <Compile Include="Observers\Utilities\AzureStorageConnection.cs" />

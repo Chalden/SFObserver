@@ -385,8 +385,6 @@ namespace FabricObserver.Observers
                 new NetworkObserver(),
 
                 new QueueObserver(),
-
-                new NetworkIOObserver(),
             });
 
             // Only return a list with user-enabled observer instances.
