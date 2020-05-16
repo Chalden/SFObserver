@@ -298,6 +298,12 @@ namespace FabricObserver.Observers
                         this.allAppMemDataPercent.Add(new FabricResourceUsageData<double>(ErrorWarningProperty.TotalMemoryConsumptionPct, id, DataCapacity, UseCircularBuffer));
                         this.allAppTotalActivePortsData.Add(new FabricResourceUsageData<int>(ErrorWarningProperty.TotalActivePorts, id, 1));
                         this.allAppEphemeralPortsData.Add(new FabricResourceUsageData<int>(ErrorWarningProperty.TotalEphemeralPorts, id, 1));
+                        this.readOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.ReadOpSec, id, 1));
+                        this.writeOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.WriteOpSec, id, 1));
+                        this.dataOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.DataOpSec, id, 1));
+                        this.readBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.ReadOpSec, id, 1));
+                        this.writeBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.WriteOpSec, id, 1));
+                        this.dataBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.DataOpSec, id, 1));
                     }
 
                     TimeSpan duration = TimeSpan.FromSeconds(15);
