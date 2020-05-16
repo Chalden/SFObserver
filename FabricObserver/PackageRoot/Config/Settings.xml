@@ -189,7 +189,7 @@
     <Parameter Name="ClusterOperationTimeoutSeconds" Value="120" />
   </Section>
  <Section Name="QueueObserverConfiguration">
-  <Parameter Name="Enabled" Value="False" />
+  <Parameter Name="Enabled" Value="True" />
   <Parameter Name="RunInterval" Value="0.00:00:30" />
   <Parameter Name="WarningLength" Value="2" />
 	<Parameter Name="CriticalLength" Value="3" />
