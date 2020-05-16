@@ -18,7 +18,7 @@ namespace FabricObserver.Observers.Utilities
         private PerformanceCounter writeOpSec;
         private PerformanceCounter dataOpSec;
         private PerformanceCounter readBytesSec;
-        private PerformanceCounter writeByteSec;
+        private PerformanceCounter writeBytesSec;
         private PerformanceCounter dataBytesSec;
 
         private bool disposedValue;
@@ -46,7 +46,7 @@ namespace FabricObserver.Observers.Utilities
                 this.writeOpSec = new PerformanceCounter();
                 this.dataOpSec = new PerformanceCounter();
                 this.readBytesSec = new PerformanceCounter();
-                this.writeByteSec = new PerformanceCounter();
+                this.writeBytesSec = new PerformanceCounter();
                 this.dataBytesSec = new PerformanceCounter();
             }
             catch (PlatformNotSupportedException)
@@ -333,18 +333,18 @@ namespace FabricObserver.Observers.Utilities
             }
         }
 
-        internal float PerfCounterGetProcessWriteByteSec(string procName)
+        internal float PerfCounterGetProcessWriteBytesSec(string procName)
         {
             string cat = "Process";
             string counter = "IO Write Bytes/sec";
 
             try
             {
-                this.writeByteSec.CategoryName = cat;
-                this.writeByteSec.CounterName = counter;
-                this.writeByteSec.InstanceName = procName;
+                this.writeBytesSec.CategoryName = cat;
+                this.writeBytesSec.CounterName = counter;
+                this.writeBytesSec.InstanceName = procName;
 
-                return this.writeByteSec.NextValue();
+                return this.writeBytesSec.NextValue();
             }
             catch (Exception e)
             {
@@ -450,10 +450,10 @@ namespace FabricObserver.Observers.Utilities
                     this.readBytesSec = null;
                 }
 
-                if (this.writeByteSec != null)
+                if (this.writeBytesSec != null)
                 {
-                    this.writeByteSec.Dispose();
-                    this.writeByteSec = null;
+                    this.writeBytesSec.Dispose();
+                    this.writeBytesSec = null;
                 }
 
                 if (this.dataBytesSec != null)

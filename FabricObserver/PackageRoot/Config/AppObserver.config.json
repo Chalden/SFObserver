@@ -31,5 +31,12 @@
     "memoryWarningLimitPercent": 30,
     "networkWarningActivePorts": 80,
     "networkWarningEphemeralPorts": 40
+  },
+  {
+    "targetApp": "fabric:/TestApplication",
+    "opSecWarning": 0,
+    "opSecError": 1,
+    "opBytesWarning": 0,
+    "opBytesError": 1
   }
 ]

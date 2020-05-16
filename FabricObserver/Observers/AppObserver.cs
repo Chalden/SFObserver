@@ -32,6 +32,12 @@ namespace FabricObserver.Observers
         private readonly List<FabricResourceUsageData<double>> allAppMemDataPercent;
         private readonly List<FabricResourceUsageData<int>> allAppTotalActivePortsData;
         private readonly List<FabricResourceUsageData<int>> allAppEphemeralPortsData;
+        private readonly List<FabricResourceUsageData<float>> readOpSec;
+        private readonly List<FabricResourceUsageData<float>> writeOpSec;
+        private readonly List<FabricResourceUsageData<float>> dataOpSec;
+        private readonly List<FabricResourceUsageData<float>> readBytesSec;
+        private readonly List<FabricResourceUsageData<float>> writeBytesSec;
+        private readonly List<FabricResourceUsageData<float>> dataBytesSec;
         private WindowsPerfCounters perfCounters;
         private DiskUsage diskUsage;
         private bool disposed;
@@ -54,6 +60,12 @@ namespace FabricObserver.Observers
             this.allAppMemDataPercent = new List<FabricResourceUsageData<double>>();
             this.allAppTotalActivePortsData = new List<FabricResourceUsageData<int>>();
             this.allAppEphemeralPortsData = new List<FabricResourceUsageData<int>>();
+            this.readOpSec = new List<FabricResourceUsageData<float>>();
+            this.writeOpSec = new List<FabricResourceUsageData<float>>();
+            this.dataOpSec = new List<FabricResourceUsageData<float>>();
+            this.readBytesSec = new List<FabricResourceUsageData<float>>();
+            this.writeBytesSec = new List<FabricResourceUsageData<float>>();
+            this.dataBytesSec = new List<FabricResourceUsageData<float>>();
             this.targetList = new List<ApplicationInfo>();
             this.stopwatch = new Stopwatch();
         }
@@ -298,7 +310,12 @@ namespace FabricObserver.Observers
                     // Warm up the counters.
                     _ = cpuUsage.GetCpuUsageProcess(currentProcess);
                     _ = this.perfCounters.PerfCounterGetProcessPrivateWorkingSetMb(currentProcess.ProcessName);
-
+                    _ = this.perfCounters.PerfCounterGetProcessReadOpSec(currentProcess.ProcessName);
+                    _ = this.perfCounters.PerfCounterGetProcessWriteOpSec(currentProcess.ProcessName);
+                    _ = this.perfCounters.PerfCounterGetProcessDataOpSec(currentProcess.ProcessName);
+                    _ = this.perfCounters.PerfCounterGetProcessReadBytesSec(currentProcess.ProcessName);
+                    _ = this.perfCounters.PerfCounterGetProcessWriteBytesSec(currentProcess.ProcessName);
+                    _ = this.perfCounters.PerfCounterGetProcessDataBytesSec(currentProcess.ProcessName);
                     timer.Start();
 
                     while (!currentProcess.HasExited && timer.Elapsed <= duration)
@@ -339,6 +356,19 @@ namespace FabricObserver.Observers
 
                     this.allAppEphemeralPortsData.FirstOrDefault(x => x.Id == id)
                         .Data.Add(NetworkUsage.GetActiveEphemeralPortCount(currentProcess.Id));
+
+                    this.readOpSec.FirstOrDefault(x => x.Id == id)
+                        .Data.Add(this.perfCounters.PerfCounterGetProcessReadOpSec(currentProcess.ProcessName));
+                    this.writeOpSec.FirstOrDefault(x => x.Id == id)
+                        .Data.Add(this.perfCounters.PerfCounterGetProcessWriteOpSec(currentProcess.ProcessName));
+                    this.dataOpSec.FirstOrDefault(x => x.Id == id)
+                        .Data.Add(this.perfCounters.PerfCounterGetProcessDataOpSec(currentProcess.ProcessName));
+                    this.readBytesSec.FirstOrDefault(x => x.Id == id)
+                        .Data.Add(this.perfCounters.PerfCounterGetProcessReadBytesSec(currentProcess.ProcessName));
+                    this.writeBytesSec.FirstOrDefault(x => x.Id == id)
+                        .Data.Add(this.perfCounters.PerfCounterGetProcessWriteBytesSec(currentProcess.ProcessName));
+                    this.dataBytesSec.FirstOrDefault(x => x.Id == id)
+                        .Data.Add(this.perfCounters.PerfCounterGetProcessDataBytesSec(currentProcess.ProcessName));
                 }
                 catch (Exception e)
                 {
@@ -641,11 +671,65 @@ namespace FabricObserver.Observers
                             HealthReportType.Application,
                             repOrInst);
 
-                        // Ports
+                        
                         this.ProcessResourceDataReportHealth(
                             this.allAppEphemeralPortsData.FirstOrDefault(x => x.Id == id),
                             app.NetworkErrorEphemeralPorts,
                             app.NetworkWarningEphemeralPorts,
+                            healthReportTimeToLive,
+                            HealthReportType.Application,
+                            repOrInst);
+                        
+                        // readOpSec
+                        this.ProcessResourceDataReportHealth(
+                            this.readOpSec.FirstOrDefault(x => x.Id == id),
+                            app.OpSecError,
+                            app.OpSecWarning,
+                            healthReportTimeToLive,
+                            HealthReportType.Application,
+                            repOrInst);
+
+                        // writeOpSec
+                        this.ProcessResourceDataReportHealth(
+                            this.writeOpSec.FirstOrDefault(x => x.Id == id),
+                            app.OpSecError,
+                            app.OpSecWarning,
+                            healthReportTimeToLive,
+                            HealthReportType.Application,
+                            repOrInst);
+
+                        // dataOpSec
+                        this.ProcessResourceDataReportHealth(
+                            this.dataOpSec.FirstOrDefault(x => x.Id == id),
+                            app.OpSecError,
+                            app.OpSecWarning,
+                            healthReportTimeToLive,
+                            HealthReportType.Application,
+                            repOrInst);
+
+                        // readBytesSec
+                        this.ProcessResourceDataReportHealth(
+                            this.readBytesSec.FirstOrDefault(x => x.Id == id),
+                            app.OpBytesError,
+                            app.OpBytesWarning,
+                            healthReportTimeToLive,
+                            HealthReportType.Application,
+                            repOrInst);
+
+                        // writeBytesSec
+                        this.ProcessResourceDataReportHealth(
+                            this.writeBytesSec.FirstOrDefault(x => x.Id == id),
+                            app.OpBytesError,
+                            app.OpBytesWarning,
+                            healthReportTimeToLive,
+                            HealthReportType.Application,
+                            repOrInst);
+
+                        // dataBytesSec
+                        this.ProcessResourceDataReportHealth(
+                            this.dataBytesSec.FirstOrDefault(x => x.Id == id),
+                            app.OpBytesError,
+                            app.OpBytesWarning,
                             healthReportTimeToLive,
                             HealthReportType.Application,
                             repOrInst);

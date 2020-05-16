@@ -35,6 +35,14 @@ namespace FabricObserver.Observers.MachineInfoModel
 
         public int NetworkWarningEphemeralPorts { get; set; }
 
+        public int OpSecWarning { get; set; }
+
+        public int OpSecError { get; set; }
+
+        public int OpBytesWarning { get; set; }
+
+        public int OpBytesError { get; set; }
+
         public int NetworkErrorFirewallRules { get; set; }
 
         public int NetworkWarningFirewallRules { get; set; }
@@ -56,6 +64,10 @@ namespace FabricObserver.Observers.MachineInfoModel
                                              $"NetworkWarningActivePorts: {this.NetworkWarningActivePorts}\n" +
                                              $"NetworkErrorEphemeralPorts: {this.NetworkErrorEphemeralPorts}\n" +
                                              $"NetworkWarningEphemeralPorts: {this.NetworkWarningEphemeralPorts}\n" +
+                                             $"OpSecWarning: {this.OpSecWarning}\n" +
+                                             $"OpSecError: {this.OpSecError}\n" +
+                                             $"OpBytesWarning: {this.OpBytesWarning}\n" +
+                                             $"OpBytesError: {this.OpBytesError}\n" +
                                              $"NetworkErrorFirewallRules: {this.NetworkErrorFirewallRules}\n" +
                                              $"NetworkWarningFirewallRules: {this.NetworkWarningFirewallRules}\n" +
                                              $"DumpProcessOnError: {this.DumpProcessOnError}\n";

@@ -44,7 +44,7 @@ namespace FabricObserver.Observers
             var writeOpSec = new PerformanceCounter("Process", "IO Write Operations/sec", pn);
             var dataOpSec = new PerformanceCounter("Process", "IO Data Operations/sec", pn);
             var readBytesSec = new PerformanceCounter("Process", "IO Read Bytes/sec", pn);
-            var writeByteSec = new PerformanceCounter("Process", "IO Write Bytes/sec", pn);
+            var writeBytesSec = new PerformanceCounter("Process", "IO Write Bytes/sec", pn);
             var dataBytesSec = new PerformanceCounter("Process", "IO Data Bytes/sec", pn);
 
             var counters = new List<PerformanceCounter>
@@ -53,7 +53,7 @@ namespace FabricObserver.Observers
                 writeOpSec,
                 dataOpSec,
                 readBytesSec,
-                writeByteSec,
+                writeBytesSec,
                 dataBytesSec
                 };
         }
