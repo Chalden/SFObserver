@@ -677,7 +677,7 @@ namespace FabricObserver.Observers
                             HealthReportType.Application,
                             repOrInst);
 
-                        
+                        // Ports
                         this.ProcessResourceDataReportHealth(
                             this.allAppEphemeralPortsData.FirstOrDefault(x => x.Id == id),
                             app.NetworkErrorEphemeralPorts,
