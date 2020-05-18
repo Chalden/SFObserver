@@ -15,7 +15,6 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 using System.Configuration;
 using FabricObserver.Observers.Interfaces;
-using System.CodeDom;
 
 namespace FabricObserver.Observers.Utilities
 {
