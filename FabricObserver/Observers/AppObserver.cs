@@ -298,12 +298,12 @@ namespace FabricObserver.Observers
                         this.allAppMemDataPercent.Add(new FabricResourceUsageData<double>(ErrorWarningProperty.TotalMemoryConsumptionPct, id, DataCapacity, UseCircularBuffer));
                         this.allAppTotalActivePortsData.Add(new FabricResourceUsageData<int>(ErrorWarningProperty.TotalActivePorts, id, 1));
                         this.allAppEphemeralPortsData.Add(new FabricResourceUsageData<int>(ErrorWarningProperty.TotalEphemeralPorts, id, 1));
-                        this.readOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.ReadOpSec, id, 1));
-                        this.writeOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.WriteOpSec, id, 1));
-                        this.dataOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.DataOpSec, id, 1));
-                        this.readBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.ReadOpSec, id, 1));
-                        this.writeBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.WriteOpSec, id, 1));
-                        this.dataBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.DataOpSec, id, 1));
+                        this.readOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.ReadOpSec, id, DataCapacity, UseCircularBuffer));
+                        this.writeOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.WriteOpSec, id, DataCapacity, UseCircularBuffer));
+                        this.dataOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.DataOpSec, id, DataCapacity, UseCircularBuffer));
+                        this.readBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.ReadOpSec, id, DataCapacity, UseCircularBuffer));
+                        this.writeBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.WriteOpSec, id, DataCapacity, UseCircularBuffer));
+                        this.dataBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.DataOpSec, id, DataCapacity, UseCircularBuffer));
                     }
 
                     TimeSpan duration = TimeSpan.FromSeconds(15);
@@ -350,6 +350,19 @@ namespace FabricObserver.Observers
                             this.allAppMemDataPercent.FirstOrDefault(x => x.Id == id).Data.Add(Math.Round(usedPct, 1));
                         }
 
+                        this.readOpSec.FirstOrDefault(x => x.Id == id)
+                            .Data.Add(this.perfCounters.PerfCounterGetProcessReadOpSec(currentProcess.ProcessName));
+                        this.writeOpSec.FirstOrDefault(x => x.Id == id)
+                            .Data.Add(this.perfCounters.PerfCounterGetProcessWriteOpSec(currentProcess.ProcessName));
+                        this.dataOpSec.FirstOrDefault(x => x.Id == id)
+                            .Data.Add(this.perfCounters.PerfCounterGetProcessDataOpSec(currentProcess.ProcessName));
+                        this.readBytesSec.FirstOrDefault(x => x.Id == id)
+                            .Data.Add(this.perfCounters.PerfCounterGetProcessReadBytesSec(currentProcess.ProcessName));
+                        this.writeBytesSec.FirstOrDefault(x => x.Id == id)
+                            .Data.Add(this.perfCounters.PerfCounterGetProcessWriteBytesSec(currentProcess.ProcessName));
+                        this.dataBytesSec.FirstOrDefault(x => x.Id == id)
+                            .Data.Add(this.perfCounters.PerfCounterGetProcessDataBytesSec(currentProcess.ProcessName));
+
                         Thread.Sleep(250);
                     }
 
@@ -362,19 +375,6 @@ namespace FabricObserver.Observers
 
                     this.allAppEphemeralPortsData.FirstOrDefault(x => x.Id == id)
                         .Data.Add(NetworkUsage.GetActiveEphemeralPortCount(currentProcess.Id));
-
-                    this.readOpSec.FirstOrDefault(x => x.Id == id)
-                        .Data.Add(this.perfCounters.PerfCounterGetProcessReadOpSec(currentProcess.ProcessName));
-                    this.writeOpSec.FirstOrDefault(x => x.Id == id)
-                        .Data.Add(this.perfCounters.PerfCounterGetProcessWriteOpSec(currentProcess.ProcessName));
-                    this.dataOpSec.FirstOrDefault(x => x.Id == id)
-                        .Data.Add(this.perfCounters.PerfCounterGetProcessDataOpSec(currentProcess.ProcessName));
-                    this.readBytesSec.FirstOrDefault(x => x.Id == id)
-                        .Data.Add(this.perfCounters.PerfCounterGetProcessReadBytesSec(currentProcess.ProcessName));
-                    this.writeBytesSec.FirstOrDefault(x => x.Id == id)
-                        .Data.Add(this.perfCounters.PerfCounterGetProcessWriteBytesSec(currentProcess.ProcessName));
-                    this.dataBytesSec.FirstOrDefault(x => x.Id == id)
-                        .Data.Add(this.perfCounters.PerfCounterGetProcessDataBytesSec(currentProcess.ProcessName));
                 }
                 catch (Exception e)
                 {
