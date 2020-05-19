@@ -16,11 +16,6 @@ namespace FabricObserver.Observers.Utilities
         private PerformanceCounter memCommittedBytesPerfCounter;
         private PerformanceCounter memProcessPrivateWorkingSetCounter;
         private List<PerformanceCounter> countersList;
-        private PerformanceCounter writeOpSec;
-        private PerformanceCounter dataOpSec;
-        private PerformanceCounter readBytesSec;
-        private PerformanceCounter writeBytesSec;
-        private PerformanceCounter dataBytesSec;
 
         private bool disposedValue;
 
