@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Fabric;
 using System.Fabric.Health;
-using System.Fabric.Management.ServiceModel;
 using System.Fabric.Query;
 using System.Fabric.Repair;
 using System.Globalization;
