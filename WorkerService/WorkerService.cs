@@ -49,7 +49,7 @@ namespace WorkerService
                 int workerStatusLength = Enum.GetNames(typeof(WorkerStatus)).Length;
                 WorkerStatus status = (WorkerStatus) random.Next(workerStatusLength);
                 
-                ServiceEventSource.Current.ServiceMessage(this.Context, senderId + timestamp + status);
+                ServiceEventSource.Current.ServiceMessage(this.Context, $"{senderId}/{timestamp}/{status}");
                 
                 await Task.Delay(TimeInterval, cancellationToken);
             }
