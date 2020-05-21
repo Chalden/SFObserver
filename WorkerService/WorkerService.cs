@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Fabric;
 using System.Linq;
 using System.Threading;
@@ -15,6 +16,9 @@ namespace WorkerService
     internal sealed class WorkerService : StatelessService
     {
         private readonly TimeSpan TimeInterval = TimeSpan.FromSeconds(10);
+
+        private enum WorkerStatus { Running, Idle };
+
         public WorkerService(StatelessServiceContext context)
             : base(context)
         { }
@@ -38,9 +42,14 @@ namespace WorkerService
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                string heartbeat =  this.Context.CodePackageActivationContext.ApplicationName + this.Context.InstanceId + this.Context.PartitionId.ToString();
+                string senderId =  this.Context.CodePackageActivationContext.ApplicationName + this.Context.InstanceId + this.Context.PartitionId.ToString();
+                string timestamp = DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss");
 
-                ServiceEventSource.Current.ServiceMessage(this.Context, heartbeat);
+                Random random = new Random();
+                int workerStatusLength = Enum.GetNames(typeof(WorkerStatus)).Length;
+                WorkerStatus status = (WorkerStatus) random.Next(workerStatusLength);
+                
+                ServiceEventSource.Current.ServiceMessage(this.Context, senderId + timestamp + status);
                 
                 await Task.Delay(TimeInterval, cancellationToken);
             }
