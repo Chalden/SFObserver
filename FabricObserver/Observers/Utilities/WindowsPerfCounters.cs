@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace FabricObserver.Observers.Utilities
@@ -13,14 +14,7 @@ namespace FabricObserver.Observers.Utilities
         private PerformanceCounter diskAverageQueueLengthCounter;
         private PerformanceCounter cpuTimePerfCounter;
         private PerformanceCounter memCommittedBytesPerfCounter;
-        private PerformanceCounter memProcessPrivateWorkingSetCounter;
-        private PerformanceCounter readOpSec;
-        private PerformanceCounter writeOpSec;
-        private PerformanceCounter dataOpSec;
-        private PerformanceCounter readBytesSec;
-        private PerformanceCounter writeBytesSec;
-        private PerformanceCounter dataBytesSec;
-
+        private IDictionary<string, PerformanceCounter> counters;
         private bool disposedValue;
 
         private Logger Logger { get; }
@@ -38,16 +32,18 @@ namespace FabricObserver.Observers.Utilities
         {
             try
             {
+                counters = new Dictionary<string, PerformanceCounter>();
+                counters.Add("Working Set - Private", new PerformanceCounter());
+                counters.Add("IO Read Operations/sec", new PerformanceCounter());
+                counters.Add("IO Write Operations/sec", new PerformanceCounter());
+                counters.Add("IO Data Operations/sec", new PerformanceCounter());
+                counters.Add("IO Read Bytes/sec", new PerformanceCounter());
+                counters.Add("IO Write Bytes/sec", new PerformanceCounter());
+                counters.Add("IO Data Bytes / sec", new PerformanceCounter());
+
                 this.diskAverageQueueLengthCounter = new PerformanceCounter();
                 this.cpuTimePerfCounter = new PerformanceCounter();
                 this.memCommittedBytesPerfCounter = new PerformanceCounter();
-                this.memProcessPrivateWorkingSetCounter = new PerformanceCounter();
-                this.readOpSec = new PerformanceCounter();
-                this.writeOpSec = new PerformanceCounter();
-                this.dataOpSec = new PerformanceCounter();
-                this.readBytesSec = new PerformanceCounter();
-                this.writeBytesSec = new PerformanceCounter();
-                this.dataBytesSec = new PerformanceCounter();
             }
             catch (PlatformNotSupportedException)
             {
@@ -215,42 +211,50 @@ namespace FabricObserver.Observers.Utilities
         internal float PerfCounterGetProcessPrivateWorkingSetMb(string procName)
         {
             string counter = "Working Set - Private";
-            return PerfCounterGetData(this.memProcessPrivateWorkingSetCounter, procName, counter) / 1024 / 1024;
+            PerformanceCounter memProcessPrivateWorkingSetCounter = this.counters[counter];
+            return PerfCounterGetData(memProcessPrivateWorkingSetCounter, procName, counter) / 1024 / 1024;
         }
 
         internal float PerfCounterGetProcessReadOpSec(string procName)
         {
             string counter = "IO Read Operations/sec";
-            return PerfCounterGetData(this.readOpSec, procName, counter);
+            PerformanceCounter readOpSec = this.counters[counter];
+            return PerfCounterGetData(readOpSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessWriteOpSec(string procName)
         {
             string counter = "IO Write Operations/sec";
-            return PerfCounterGetData(this.writeOpSec, procName, counter);
+            PerformanceCounter writeOpSec = this.counters[counter];
+            return PerfCounterGetData(writeOpSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessDataOpSec(string procName)
         {
             string counter = "IO Data Operations/sec";
-            return PerfCounterGetData(this.dataOpSec, procName, counter);
+            PerformanceCounter dataOpSec = this.counters[counter];
+            return PerfCounterGetData(dataOpSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessReadBytesSec(string procName)
         {
             string counter = "IO Read Bytes/sec";
-            return PerfCounterGetData(this.readBytesSec, procName, counter);
+            PerformanceCounter readBytesSec = this.counters[counter];
+            return PerfCounterGetData(readBytesSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessWriteBytesSec(string procName)
         {
             string counter = "IO Write Bytes/sec";
-            return PerfCounterGetData(this.writeBytesSec, procName, counter);
+            PerformanceCounter writeBytesSec = this.counters[counter];
+            return PerfCounterGetData(writeBytesSec, procName, counter);
         }
+
         internal float PerfCounterGetProcessDataBytesSec(string procName)
         {
             string counter = "IO Data Bytes/sec";
-            return PerfCounterGetData(this.dataBytesSec, procName, counter);
+            PerformanceCounter dataBytesSec = this.counters[counter];
+            return PerfCounterGetData(dataBytesSec, procName, counter);
         }
 
 
@@ -281,46 +285,9 @@ namespace FabricObserver.Observers.Utilities
                     this.cpuTimePerfCounter = null;
                 }
 
-                if (this.memProcessPrivateWorkingSetCounter != null)
+                if (this.counters != null)
                 {
-                    this.memProcessPrivateWorkingSetCounter.Dispose();
-                    this.memProcessPrivateWorkingSetCounter = null;
-                }
-
-                if (this.readOpSec != null)
-                {
-                    this.readOpSec.Dispose();
-                    this.readOpSec = null;
-                }
-
-                if (this.writeOpSec != null)
-                {
-                    this.writeOpSec.Dispose();
-                    this.writeOpSec = null;
-                }
-
-                if (this.dataOpSec != null)
-                {
-                    this.dataOpSec.Dispose();
-                    this.dataOpSec = null;
-                }
-
-                if (this.readBytesSec != null)
-                {
-                    this.readBytesSec.Dispose();
-                    this.readBytesSec = null;
-                }
-
-                if (this.writeBytesSec != null)
-                {
-                    this.writeBytesSec.Dispose();
-                    this.writeBytesSec = null;
-                }
-
-                if (this.dataBytesSec != null)
-                {
-                    this.dataBytesSec.Dispose();
-                    this.dataBytesSec = null;
+                    this.counters = null;
                 }
             }
 
