@@ -38,19 +38,17 @@ namespace WorkerService
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service instance.</param>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
+            string senderId = this.Context.CodePackageActivationContext.ApplicationName + this.Context.InstanceId + this.Context.PartitionId.ToString();
+            Random random = new Random();
+
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
-                string senderId =  this.Context.CodePackageActivationContext.ApplicationName + this.Context.InstanceId + this.Context.PartitionId.ToString();
                 string timestamp = DateTime.UtcNow.ToString("MM/dd/yyyy HH:mm:ss");
-
-                Random random = new Random();
                 int workerStatusLength = Enum.GetNames(typeof(WorkerStatus)).Length;
                 WorkerStatus status = (WorkerStatus) random.Next(workerStatusLength);
-                
+
                 ServiceEventSource.Current.ServiceMessage(this.Context, $"{senderId}/{timestamp}/{status}");
-                
                 await Task.Delay(TimeInterval, cancellationToken);
             }
         }
