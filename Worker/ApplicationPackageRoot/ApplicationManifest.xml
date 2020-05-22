@@ -19,7 +19,7 @@
          The attribute ServiceTypeName below must match the name defined in the imported ServiceManifest.xml file. -->
     <Service Name="WorkerService" ServicePackageActivationMode="ExclusiveProcess">
       <StatelessService ServiceTypeName="WorkerServiceType" InstanceCount="[WorkerService_InstanceCount]">
-        <SingletonPartition />
+        <UniformInt64Partition PartitionCount="[WorkerService_PartitionCount]" LowKey="0" HighKey="9" />
       </StatelessService>
     </Service>
   </DefaultServices>
