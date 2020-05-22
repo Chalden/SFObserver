@@ -63,6 +63,35 @@ namespace FabricObserver.Observers.Utilities
             return true;
         }
 
+        private float PerfCounterGetData(PerformanceCounter perfCounter, string procName, string counter)
+        {
+            string cat = "Process";
+
+            try
+            {
+                perfCounter.CategoryName = cat;
+                perfCounter.CounterName = counter;
+                perfCounter.InstanceName = procName;
+
+                return perfCounter.NextValue();
+            }
+            catch (Exception e)
+            {
+                if (e is ArgumentNullException || e is PlatformNotSupportedException
+                                               || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
+                {
+                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
+
+                    // Don't throw.
+                    return 0F;
+                }
+
+                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
+
+                throw;
+            }
+        }
+
         internal float PerfCounterGetAverageDiskQueueLength(string instance)
         {
             string cat = "LogicalDisk";
@@ -185,211 +214,43 @@ namespace FabricObserver.Observers.Utilities
 
         internal float PerfCounterGetProcessPrivateWorkingSetMb(string procName)
         {
-            string cat = "Process";
             string counter = "Working Set - Private";
-
-            try
-            {
-                this.memProcessPrivateWorkingSetCounter.CategoryName = cat;
-                this.memProcessPrivateWorkingSetCounter.CounterName = counter;
-                this.memProcessPrivateWorkingSetCounter.InstanceName = procName;
-
-                return this.memProcessPrivateWorkingSetCounter.NextValue() / 1024 / 1024;
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            return PerfCounterGetData(this.memProcessPrivateWorkingSetCounter, procName, counter) / 1024 / 1024;
         }
 
         internal float PerfCounterGetProcessReadOpSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Read Operations/sec";
-
-            try
-            {
-                this.readOpSec.CategoryName = cat;
-                this.readOpSec.CounterName = counter;
-                this.readOpSec.InstanceName = procName;
-
-                return this.readOpSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            return PerfCounterGetData(this.readOpSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessWriteOpSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Write Operations/sec";
-
-            try
-            {
-                this.writeOpSec.CategoryName = cat;
-                this.writeOpSec.CounterName = counter;
-                this.writeOpSec.InstanceName = procName;
-
-                return this.writeOpSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            return PerfCounterGetData(this.writeOpSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessDataOpSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Data Operations/sec";
-
-            try
-            {
-                this.dataOpSec.CategoryName = cat;
-                this.dataOpSec.CounterName = counter;
-                this.dataOpSec.InstanceName = procName;
-
-                return this.dataOpSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            return PerfCounterGetData(this.dataOpSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessReadBytesSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Read Bytes/sec";
-
-            try
-            {
-                this.readBytesSec.CategoryName = cat;
-                this.readBytesSec.CounterName = counter;
-                this.readBytesSec.InstanceName = procName;
-
-                return this.readBytesSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            return PerfCounterGetData(this.readBytesSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessWriteBytesSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Write Bytes/sec";
-
-            try
-            {
-                this.writeBytesSec.CategoryName = cat;
-                this.writeBytesSec.CounterName = counter;
-                this.writeBytesSec.InstanceName = procName;
-
-                return this.writeBytesSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            return PerfCounterGetData(this.writeBytesSec, procName, counter);
         }
         internal float PerfCounterGetProcessDataBytesSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Data Bytes/sec";
-
-            try
-            {
-                this.dataBytesSec.CategoryName = cat;
-                this.dataBytesSec.CounterName = counter;
-                this.dataBytesSec.InstanceName = procName;
-
-                return this.dataBytesSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            return PerfCounterGetData(this.dataBytesSec, procName, counter);
         }
 
 
