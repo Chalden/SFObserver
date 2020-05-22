@@ -11,7 +11,6 @@ namespace FabricObserver.Observers.Utilities
 {
     public class WindowsPerfCounters : IDisposable
     {
-        private PerformanceCounter diskAverageQueueLengthCounter;
         private PerformanceCounter cpuTimePerfCounter;
         private PerformanceCounter memCommittedBytesPerfCounter;
         private IDictionary<string, PerformanceCounter> counters;
@@ -33,6 +32,7 @@ namespace FabricObserver.Observers.Utilities
             try
             {
                 counters = new Dictionary<string, PerformanceCounter>();
+                counters.Add("Avg. Disk Queue Length", new PerformanceCounter());
                 counters.Add("Working Set - Private", new PerformanceCounter());
                 counters.Add("IO Read Operations/sec", new PerformanceCounter());
                 counters.Add("IO Write Operations/sec", new PerformanceCounter());
@@ -41,7 +41,6 @@ namespace FabricObserver.Observers.Utilities
                 counters.Add("IO Write Bytes/sec", new PerformanceCounter());
                 counters.Add("IO Data Bytes / sec", new PerformanceCounter());
 
-                this.diskAverageQueueLengthCounter = new PerformanceCounter();
                 this.cpuTimePerfCounter = new PerformanceCounter();
                 this.memCommittedBytesPerfCounter = new PerformanceCounter();
             }
@@ -61,7 +60,15 @@ namespace FabricObserver.Observers.Utilities
 
         private float PerfCounterGetData(PerformanceCounter perfCounter, string procName, string counter)
         {
-            string cat = "Process";
+            string cat;
+            if(counter.Equals("Avg. Disk Queue Length"))
+            {
+                cat = "LogicalDisk";
+            }
+            else
+            { 
+                cat = "Process";
+            }
 
             try
             {
@@ -90,32 +97,9 @@ namespace FabricObserver.Observers.Utilities
 
         internal float PerfCounterGetAverageDiskQueueLength(string instance)
         {
-            string cat = "LogicalDisk";
             string counter = "Avg. Disk Queue Length";
-
-            try
-            {
-                this.diskAverageQueueLengthCounter.CategoryName = cat;
-                this.diskAverageQueueLengthCounter.CounterName = counter;
-                this.diskAverageQueueLengthCounter.InstanceName = instance;
-
-                return this.diskAverageQueueLengthCounter.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled exception: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled exception: " + e);
-
-                throw;
-            }
+            PerformanceCounter diskAverageQueueLengthCounter = this.counters[counter];
+            return PerfCounterGetData(diskAverageQueueLengthCounter, instance, counter) / 1024 / 1024;
         }
 
         internal float PerfCounterGetProcessorInfo(
@@ -267,12 +251,6 @@ namespace FabricObserver.Observers.Utilities
 
             if (disposing)
             {
-                if (this.diskAverageQueueLengthCounter != null)
-                {
-                    this.diskAverageQueueLengthCounter.Dispose();
-                    this.diskAverageQueueLengthCounter = null;
-                }
-
                 if (this.memCommittedBytesPerfCounter != null)
                 {
                     this.memCommittedBytesPerfCounter.Dispose();
