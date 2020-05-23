@@ -4,6 +4,7 @@ using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Runtime;
 using WorkerService;
@@ -29,12 +30,8 @@ namespace HeartbeatService
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
-                IWorkerService workerClient = ServiceProxy.Create<IWorkerService>(new Uri("fabric:/Worker/WorkerService"));
-
+                IWorkerService workerClient = ServiceProxy.Create<IWorkerService>(new Uri("fabric:/Worker/WorkerService"), new ServicePartitionKey(0));
                 string message = await workerClient.SendHeartbeat(cancellationToken);
-
-                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             }
         }
     }
