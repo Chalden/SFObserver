@@ -56,7 +56,7 @@ namespace WorkerService
                 int workerStatusLength = Enum.GetNames(typeof(WorkerStatus)).Length;
                 WorkerStatus status = (WorkerStatus) random.Next(workerStatusLength);
                 Task.Delay(TimeInterval, cancellationToken);
-                return Task.FromResult($"{senderId}/{timestamp}/{status}");
+                return Task.FromResult($"{senderId}${timestamp}${status}");
             }
         }
     }
