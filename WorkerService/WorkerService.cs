@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.Design;
 using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Client;
+using Microsoft.ServiceFabric.Services.Communication.Client;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting;
+using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 
 namespace WorkerService
@@ -15,11 +19,15 @@ namespace WorkerService
     /// <summary>
     /// An instance of this class is created for each service instance by the Service Fabric runtime.
     /// </summary>
+    public interface IWorkerService : IService
+    {
+        Task SubmitHeartbeat(Heartbeat heartbeat);
+    }
 
-    internal sealed class WorkerService : StatelessService
+    internal sealed class WorkerService : StatelessService, IWorkerService
     {
         private readonly TimeSpan TimeInterval = TimeSpan.FromSeconds(10);
-
+        private readonly IServiceProxyFactory _heartbeatServiceProxyFactory;
         private enum WorkerStatus { Running, Idle };
 
         public WorkerService(StatelessServiceContext context)
@@ -32,7 +40,13 @@ namespace WorkerService
         /// <returns>A collection of listeners.</returns>
         protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
         {
-            return new ServiceInstanceListener[0];
+            return this.CreateServiceRemotingInstanceListeners();
+        }
+
+        public async Task SubmitHeartbeat(Heartbeat heartbeat)
+        {
+            var proxy = ServiceProxy.Create<IHeartbeatService>(new Uri("fabric:/Heartbeat/HeartbeatService"), new ServicePartitionKey(0));
+            await proxy.AddHeartbeat(heartbeat);
         }
 
         /// <summary>
@@ -50,7 +64,7 @@ namespace WorkerService
                 cancellationToken.ThrowIfCancellationRequested();
                 WorkerStatus status = (WorkerStatus)random.Next(workerStatusLength);
                 Heartbeat heartbeat = new Heartbeat(senderId, DateTime.UtcNow, status.ToString());
-                await Task.FromResult(heartbeat);
+                await SubmitHeartbeat(heartbeat);
                 await Task.Delay(TimeInterval, cancellationToken);
             }
         }
