@@ -11,8 +11,6 @@ namespace FabricObserver.Observers.Utilities
 {
     public class WindowsPerfCounters : IDisposable
     {
-        private PerformanceCounter cpuTimePerfCounter;
-        private PerformanceCounter memCommittedBytesPerfCounter;
         private IDictionary<string, PerformanceCounter> counters;
         private bool disposedValue;
 
@@ -33,6 +31,8 @@ namespace FabricObserver.Observers.Utilities
             {
                 counters = new Dictionary<string, PerformanceCounter>();
                 counters.Add("Avg. Disk Queue Length", new PerformanceCounter());
+                counters.Add("% Processor Time", new PerformanceCounter());
+                counters.Add("Committed Bytes", new PerformanceCounter());
                 counters.Add("Working Set - Private", new PerformanceCounter());
                 counters.Add("IO Read Operations/sec", new PerformanceCounter());
                 counters.Add("IO Write Operations/sec", new PerformanceCounter());
@@ -40,9 +40,6 @@ namespace FabricObserver.Observers.Utilities
                 counters.Add("IO Read Bytes/sec", new PerformanceCounter());
                 counters.Add("IO Write Bytes/sec", new PerformanceCounter());
                 counters.Add("IO Data Bytes / sec", new PerformanceCounter());
-
-                this.cpuTimePerfCounter = new PerformanceCounter();
-                this.memCommittedBytesPerfCounter = new PerformanceCounter();
             }
             catch (PlatformNotSupportedException)
             {
@@ -110,6 +107,7 @@ namespace FabricObserver.Observers.Utilities
             string cat = "Processor";
             string counter = "% Processor Time";
             string inst = "_Total";
+            PerformanceCounter cpuTimePerfCounter = this.counters[counter];
 
             try
             {
@@ -128,11 +126,11 @@ namespace FabricObserver.Observers.Utilities
                     inst = instance;
                 }
 
-                this.cpuTimePerfCounter.CategoryName = cat;
-                this.cpuTimePerfCounter.CounterName = counter;
-                this.cpuTimePerfCounter.InstanceName = inst;
+                cpuTimePerfCounter.CategoryName = cat;
+                cpuTimePerfCounter.CounterName = counter;
+                cpuTimePerfCounter.InstanceName = inst;
 
-                return this.cpuTimePerfCounter.NextValue();
+                return cpuTimePerfCounter.NextValue();
             }
             catch (Exception e)
             {
@@ -158,6 +156,7 @@ namespace FabricObserver.Observers.Utilities
         {
             string cat = "Memory";
             string counter = "Committed Bytes";
+            PerformanceCounter memCommittedBytesPerfCounter = this.counters[counter];
 
             try
             {
@@ -171,10 +170,10 @@ namespace FabricObserver.Observers.Utilities
                     counter = counterName;
                 }
 
-                this.memCommittedBytesPerfCounter.CategoryName = cat;
-                this.memCommittedBytesPerfCounter.CounterName = counter;
+                memCommittedBytesPerfCounter.CategoryName = cat;
+                memCommittedBytesPerfCounter.CounterName = counter;
 
-                return this.memCommittedBytesPerfCounter.NextValue() / 1024 / 1024;
+                return memCommittedBytesPerfCounter.NextValue() / 1024 / 1024;
             }
             catch (Exception e)
             {
@@ -251,18 +250,6 @@ namespace FabricObserver.Observers.Utilities
 
             if (disposing)
             {
-                if (this.memCommittedBytesPerfCounter != null)
-                {
-                    this.memCommittedBytesPerfCounter.Dispose();
-                    this.memCommittedBytesPerfCounter = null;
-                }
-
-                if (this.cpuTimePerfCounter != null)
-                {
-                    this.cpuTimePerfCounter.Dispose();
-                    this.cpuTimePerfCounter = null;
-                }
-
                 if (this.counters != null)
                 {
                     foreach (PerformanceCounter counter in counters.Values)
