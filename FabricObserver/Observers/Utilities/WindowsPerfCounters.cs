@@ -265,6 +265,11 @@ namespace FabricObserver.Observers.Utilities
 
                 if (this.counters != null)
                 {
+                    foreach (PerformanceCounter counter in counters.Values)
+                    {
+                        counter.Dispose();
+                    }
+
                     this.counters = null;
                 }
             }
