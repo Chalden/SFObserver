@@ -7,12 +7,18 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Client;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Runtime;
 using WorkerService;
 
 namespace HeartbeatService
 {
+    public interface IHeartbeatService : IService
+    {
+        Task AddHeartbeat(Heartbeat heartbeat);
+    }
     /// <summary>
     /// An instance of this class is created for each service replica by the Service Fabric runtime.
     /// </summary>
@@ -31,31 +37,17 @@ namespace HeartbeatService
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service replica.</param>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            while (true)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                IWorkerService workerClient = ServiceProxy.Create<IWorkerService>(new Uri("fabric:/Worker/WorkerService"), new ServicePartitionKey(0));
-                string message = await workerClient.SendHeartbeat(cancellationToken);
-                
-                try
-                {
-                    await this.AddHeartbeatAsync(message);
-                }
-                catch (Exception ex)
-                {
-                }
-            }
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
-        private async Task AddHeartbeatAsync(string message)
+        private async Task AddHeartbeat(Heartbeat heartbeat)
         {
-            string[] heartbeat = message.Split('$');
-            this.Heartbeats = await this.StateManager.GetOrAddAsync<IReliableDictionary<String, String>>("heartbeats");
+            this.Heartbeats = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("heartbeats");
 
             using (ITransaction tx = this.StateManager.CreateTransaction())
             { 
-                await Heartbeats.SetAsync(tx, heartbeat[0], 
-                    $"[{heartbeat[1]}] Sender ID: {heartbeat[0]}, Status: {heartbeat[2]}");
+                await Heartbeats.SetAsync(tx, heartbeat.senderId, 
+                    $"[{heartbeat.timestamp.ToString("MM/dd/yyyy HH:mm:ss")}] Sender ID: {heartbeat.senderId}, Status: {heartbeat.status}");
 
                 await tx.CommitAsync();
             }
