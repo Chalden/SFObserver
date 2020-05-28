@@ -10,19 +10,19 @@ using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
-using WorkerService;
 
 namespace HeartbeatService
 {
     public interface IHeartbeatService : IService
     {
-        Task AddHeartbeat(Heartbeat heartbeat);
+        Task AddHeartbeat(string senderId, string status, DateTime timestamp);
     }
     /// <summary>
     /// An instance of this class is created for each service replica by the Service Fabric runtime.
     /// </summary>
-    internal sealed class HeartbeatService : StatefulService
+    internal sealed class HeartbeatService : StatefulService, IHeartbeatService
     {
         public HeartbeatService(StatefulServiceContext context)
             : base(context)
@@ -35,19 +35,25 @@ namespace HeartbeatService
         /// This method executes when this replica of your service becomes primary and has write status.
         /// </summary>
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service replica.</param>
+
+        protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
+        {
+            return this.CreateServiceRemotingReplicaListeners();
+        }
+
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
         }
 
-        private async Task AddHeartbeat(Heartbeat heartbeat)
+        public async Task AddHeartbeat(string senderId, string status, DateTime timestamp)
         {
             this.Heartbeats = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("heartbeats");
 
             using (ITransaction tx = this.StateManager.CreateTransaction())
-            { 
-                await Heartbeats.SetAsync(tx, heartbeat.senderId, 
-                    $"[{heartbeat.timestamp.ToString("MM/dd/yyyy HH:mm:ss")}] Sender ID: {heartbeat.senderId}, Status: {heartbeat.status}");
+            {
+                await Heartbeats.SetAsync(tx, senderId,
+                    $"[{timestamp.ToString("MM/dd/yyyy HH:mm:ss")}] Sender ID: {senderId}, Status: {status}");
 
                 await tx.CommitAsync();
             }
