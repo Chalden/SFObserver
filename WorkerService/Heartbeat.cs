@@ -6,9 +6,9 @@ namespace WorkerService
 {
     public class Heartbeat
     {
-        private string senderId;
-        private DateTime timestamp;
-        private string status;
+        public string senderId { get;}
+        public DateTime timestamp { get; }
+        public string status { get; }
 
         public Heartbeat(string senderId, DateTime timestamp, string status)
         {

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,10 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric.Services" Version="4.1.409" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\WorkerService\WorkerService.csproj" />
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="4.1.409" />
   </ItemGroup>
 
 </Project>

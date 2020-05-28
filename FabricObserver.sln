@@ -34,10 +34,13 @@ EndProject
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Worker", "Worker\Worker.sfproj", "{7336C9CC-DFC4-41DC-84FD-B62F6B24D035}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService", "WorkerService\WorkerService.csproj", "{3CE1A75A-4ED1-4095-B3C6-EA6E9C4D71A7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2691185-562D-41C2-9C2E-FDF05A353C50} = {F2691185-562D-41C2-9C2E-FDF05A353C50}
+	EndProjectSection
 EndProject
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Heartbeat", "Heartbeat\Heartbeat.sfproj", "{7BA544C4-A9A7-4B1F-A77B-19C0A97B002F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeartbeatService", "HeartbeatService\HeartbeatService.csproj", "{F2691185-562D-41C2-9C2E-FDF05A353C50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HeartbeatService", "HeartbeatService\HeartbeatService.csproj", "{F2691185-562D-41C2-9C2E-FDF05A353C50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

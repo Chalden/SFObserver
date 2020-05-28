@@ -14,4 +14,8 @@
     <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="4.1.409" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HeartbeatService\HeartbeatService.csproj" />
+  </ItemGroup>
+
 </Project>

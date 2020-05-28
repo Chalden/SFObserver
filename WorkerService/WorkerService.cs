@@ -13,6 +13,7 @@ using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using HeartbeatService;
 
 namespace WorkerService
 {
@@ -35,7 +36,7 @@ namespace WorkerService
         private async Task SubmitHeartbeat(Heartbeat heartbeat)
         {
             var proxy = ServiceProxy.Create<IHeartbeatService>(new Uri("fabric:/Heartbeat/HeartbeatService"));
-            await proxy.AddHeartbeat(heartbeat.senderID, heartbeat.status, heartbeat.timestamp);
+            await proxy.AddHeartbeat(heartbeat.senderId, heartbeat.status, heartbeat.timestamp);
         }
 
         /// <summary>
