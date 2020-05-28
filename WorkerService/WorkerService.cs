@@ -19,15 +19,9 @@ namespace WorkerService
     /// <summary>
     /// An instance of this class is created for each service instance by the Service Fabric runtime.
     /// </summary>
-    public interface IWorkerService : IService
-    {
-        Task SubmitHeartbeat(Heartbeat heartbeat);
-    }
-
-    internal sealed class WorkerService : StatelessService, IWorkerService
+    internal sealed class WorkerService : StatelessService
     {
         private readonly TimeSpan TimeInterval = TimeSpan.FromSeconds(10);
-        private readonly IServiceProxyFactory _heartbeatServiceProxyFactory;
         private enum WorkerStatus { Running, Idle };
 
         public WorkerService(StatelessServiceContext context)
@@ -38,15 +32,10 @@ namespace WorkerService
         /// Optional override to create listeners (e.g., TCP, HTTP) for this service replica to handle client or user requests.
         /// </summary>
         /// <returns>A collection of listeners.</returns>
-        protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
-        {
-            return this.CreateServiceRemotingInstanceListeners();
-        }
-
         public async Task SubmitHeartbeat(Heartbeat heartbeat)
         {
-            var proxy = ServiceProxy.Create<IHeartbeatService>(new Uri("fabric:/Heartbeat/HeartbeatService"), new ServicePartitionKey(0));
-            await proxy.AddHeartbeat(heartbeat);
+            var proxy = ServiceProxy.Create<IHeartbeatService>(new Uri("fabric:/Heartbeat/HeartbeatService"));
+            await proxy.AddHeartbeat(heartbeat.senderID, heartbeat.status, heartbeat.timestamp);
         }
 
         /// <summary>
