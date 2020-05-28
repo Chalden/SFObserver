@@ -43,7 +43,11 @@ namespace HeartbeatService
 
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+            }
         }
 
         public async Task AddHeartbeat(string senderId, string status, DateTime timestamp)
