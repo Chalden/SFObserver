@@ -32,7 +32,7 @@ namespace WorkerService
         /// Optional override to create listeners (e.g., TCP, HTTP) for this service replica to handle client or user requests.
         /// </summary>
         /// <returns>A collection of listeners.</returns>
-        public async Task SubmitHeartbeat(Heartbeat heartbeat)
+        private async Task SubmitHeartbeat(Heartbeat heartbeat)
         {
             var proxy = ServiceProxy.Create<IHeartbeatService>(new Uri("fabric:/Heartbeat/HeartbeatService"));
             await proxy.AddHeartbeat(heartbeat.senderID, heartbeat.status, heartbeat.timestamp);
