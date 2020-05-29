@@ -36,7 +36,7 @@ namespace WorkerService
         private async Task SubmitHeartbeat(Heartbeat heartbeat)
         {
             var proxy = ServiceProxy.Create<IHeartbeatService>(new Uri("fabric:/Heartbeat/HeartbeatService"));
-            await proxy.AddHeartbeat(heartbeat.senderId, heartbeat.status, heartbeat.timestamp);
+            await proxy.SubmitHeartbeatAsync(heartbeat.SenderId, heartbeat.Status, heartbeat.Timestamp);
         }
 
         /// <summary>
