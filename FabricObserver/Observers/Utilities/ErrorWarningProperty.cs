@@ -27,5 +27,13 @@ namespace FabricObserver.Observers.Utilities
         public const string TotalActiveFirewallRules = "Total Active Firewall Rules";
         public const string TotalActivePorts = "Total Active Ports";
         public const string TotalEphemeralPorts = "Total Ephemeral Active Ports";
+
+        // IO
+        public const string ReadOpSec = "IO Read Operations/sec";
+        public const string WriteOpSec = "IO Write Operations/sec";
+        public const string DataOpSec = "IO Data Operations/sec";
+        public const string ReadBytesSec = "IO Read Bytes/sec";
+        public const string WriteByteSec = "IO Write Bytes/sec";
+        public const string DataBytesSec = "IO Data Bytes/sec";
     }
 }
