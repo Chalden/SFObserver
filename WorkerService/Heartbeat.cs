@@ -6,15 +6,15 @@ namespace WorkerService
 {
     public class Heartbeat
     {
-        public string senderId { get;}
-        public DateTime timestamp { get; }
-        public string status { get; }
+        public string SenderId { get;}
+        public DateTime Timestamp { get; }
+        public string Status { get; }
 
         public Heartbeat(string senderId, DateTime timestamp, string status)
         {
-            this.senderId = senderId;
-            this.timestamp = timestamp;
-            this.status = status;
+            this.SenderId = senderId;
+            this.Timestamp = timestamp;
+            this.Status = status;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace HeartbeatService
 {
     public interface IHeartbeatService : IService
     {
-        Task AddHeartbeat(string senderId, string status, DateTime timestamp);
+        Task SubmitHeartbeatAsync(string senderId, string status, DateTime timestamp);
     }
     /// <summary>
     /// An instance of this class is created for each service replica by the Service Fabric runtime.
@@ -50,7 +50,7 @@ namespace HeartbeatService
             }
         }
 
-        public async Task AddHeartbeat(string senderId, string status, DateTime timestamp)
+        public async Task SubmitHeartbeatAsync(string senderId, string status, DateTime timestamp)
         {
             this.Heartbeats = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("heartbeats");
 
