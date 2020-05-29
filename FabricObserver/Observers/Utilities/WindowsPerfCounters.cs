@@ -4,23 +4,14 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace FabricObserver.Observers.Utilities
 {
     public class WindowsPerfCounters : IDisposable
     {
-        private PerformanceCounter diskAverageQueueLengthCounter;
-        private PerformanceCounter cpuTimePerfCounter;
-        private PerformanceCounter memCommittedBytesPerfCounter;
-        private PerformanceCounter memProcessPrivateWorkingSetCounter;
-        private PerformanceCounter readOpSec;
-        private PerformanceCounter writeOpSec;
-        private PerformanceCounter dataOpSec;
-        private PerformanceCounter readBytesSec;
-        private PerformanceCounter writeBytesSec;
-        private PerformanceCounter dataBytesSec;
-
+        private IDictionary<string, PerformanceCounter> counters;
         private bool disposedValue;
 
         private Logger Logger { get; }
@@ -38,16 +29,17 @@ namespace FabricObserver.Observers.Utilities
         {
             try
             {
-                this.diskAverageQueueLengthCounter = new PerformanceCounter();
-                this.cpuTimePerfCounter = new PerformanceCounter();
-                this.memCommittedBytesPerfCounter = new PerformanceCounter();
-                this.memProcessPrivateWorkingSetCounter = new PerformanceCounter();
-                this.readOpSec = new PerformanceCounter();
-                this.writeOpSec = new PerformanceCounter();
-                this.dataOpSec = new PerformanceCounter();
-                this.readBytesSec = new PerformanceCounter();
-                this.writeBytesSec = new PerformanceCounter();
-                this.dataBytesSec = new PerformanceCounter();
+                counters = new Dictionary<string, PerformanceCounter>();
+                counters.Add("Avg. Disk Queue Length", new PerformanceCounter());
+                counters.Add("% Processor Time", new PerformanceCounter());
+                counters.Add("Committed Bytes", new PerformanceCounter());
+                counters.Add("Working Set - Private", new PerformanceCounter());
+                counters.Add("IO Read Operations/sec", new PerformanceCounter());
+                counters.Add("IO Write Operations/sec", new PerformanceCounter());
+                counters.Add("IO Data Operations/sec", new PerformanceCounter());
+                counters.Add("IO Read Bytes/sec", new PerformanceCounter());
+                counters.Add("IO Write Bytes/sec", new PerformanceCounter());
+                counters.Add("IO Data Bytes / sec", new PerformanceCounter());
             }
             catch (PlatformNotSupportedException)
             {
@@ -63,34 +55,48 @@ namespace FabricObserver.Observers.Utilities
             return true;
         }
 
-        internal float PerfCounterGetAverageDiskQueueLength(string instance)
+        private float PerfCounterGetData(PerformanceCounter perfCounter, string procName, string counter)
         {
-            string cat = "LogicalDisk";
-            string counter = "Avg. Disk Queue Length";
+            string cat;
+            if(counter.Equals("Avg. Disk Queue Length"))
+            {
+                cat = "LogicalDisk";
+            }
+            else
+            { 
+                cat = "Process";
+            }
 
             try
             {
-                this.diskAverageQueueLengthCounter.CategoryName = cat;
-                this.diskAverageQueueLengthCounter.CounterName = counter;
-                this.diskAverageQueueLengthCounter.InstanceName = instance;
+                perfCounter.CategoryName = cat;
+                perfCounter.CounterName = counter;
+                perfCounter.InstanceName = procName;
 
-                return this.diskAverageQueueLengthCounter.NextValue();
+                return perfCounter.NextValue();
             }
             catch (Exception e)
             {
                 if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
+                                               || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
                 {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled exception: " + e);
+                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
 
                     // Don't throw.
                     return 0F;
                 }
 
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled exception: " + e);
+                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
 
                 throw;
             }
+        }
+
+        internal float PerfCounterGetAverageDiskQueueLength(string instance)
+        {
+            string counter = "Avg. Disk Queue Length";
+            PerformanceCounter diskAverageQueueLengthCounter = this.counters[counter];
+            return PerfCounterGetData(diskAverageQueueLengthCounter, instance, counter) / 1024 / 1024;
         }
 
         internal float PerfCounterGetProcessorInfo(
@@ -101,6 +107,7 @@ namespace FabricObserver.Observers.Utilities
             string cat = "Processor";
             string counter = "% Processor Time";
             string inst = "_Total";
+            PerformanceCounter cpuTimePerfCounter = this.counters[counter];
 
             try
             {
@@ -119,11 +126,11 @@ namespace FabricObserver.Observers.Utilities
                     inst = instance;
                 }
 
-                this.cpuTimePerfCounter.CategoryName = cat;
-                this.cpuTimePerfCounter.CounterName = counter;
-                this.cpuTimePerfCounter.InstanceName = inst;
+                cpuTimePerfCounter.CategoryName = cat;
+                cpuTimePerfCounter.CounterName = counter;
+                cpuTimePerfCounter.InstanceName = inst;
 
-                return this.cpuTimePerfCounter.NextValue();
+                return cpuTimePerfCounter.NextValue();
             }
             catch (Exception e)
             {
@@ -149,6 +156,7 @@ namespace FabricObserver.Observers.Utilities
         {
             string cat = "Memory";
             string counter = "Committed Bytes";
+            PerformanceCounter memCommittedBytesPerfCounter = this.counters[counter];
 
             try
             {
@@ -162,10 +170,10 @@ namespace FabricObserver.Observers.Utilities
                     counter = counterName;
                 }
 
-                this.memCommittedBytesPerfCounter.CategoryName = cat;
-                this.memCommittedBytesPerfCounter.CounterName = counter;
+                memCommittedBytesPerfCounter.CategoryName = cat;
+                memCommittedBytesPerfCounter.CounterName = counter;
 
-                return this.memCommittedBytesPerfCounter.NextValue() / 1024 / 1024;
+                return memCommittedBytesPerfCounter.NextValue() / 1024 / 1024;
             }
             catch (Exception e)
             {
@@ -185,211 +193,51 @@ namespace FabricObserver.Observers.Utilities
 
         internal float PerfCounterGetProcessPrivateWorkingSetMb(string procName)
         {
-            string cat = "Process";
             string counter = "Working Set - Private";
-
-            try
-            {
-                this.memProcessPrivateWorkingSetCounter.CategoryName = cat;
-                this.memProcessPrivateWorkingSetCounter.CounterName = counter;
-                this.memProcessPrivateWorkingSetCounter.InstanceName = procName;
-
-                return this.memProcessPrivateWorkingSetCounter.NextValue() / 1024 / 1024;
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            PerformanceCounter memProcessPrivateWorkingSetCounter = this.counters[counter];
+            return PerfCounterGetData(memProcessPrivateWorkingSetCounter, procName, counter) / 1024 / 1024;
         }
 
         internal float PerfCounterGetProcessReadOpSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Read Operations/sec";
-
-            try
-            {
-                this.readOpSec.CategoryName = cat;
-                this.readOpSec.CounterName = counter;
-                this.readOpSec.InstanceName = procName;
-
-                return this.readOpSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            PerformanceCounter readOpSec = this.counters[counter];
+            return PerfCounterGetData(readOpSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessWriteOpSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Write Operations/sec";
-
-            try
-            {
-                this.writeOpSec.CategoryName = cat;
-                this.writeOpSec.CounterName = counter;
-                this.writeOpSec.InstanceName = procName;
-
-                return this.writeOpSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            PerformanceCounter writeOpSec = this.counters[counter];
+            return PerfCounterGetData(writeOpSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessDataOpSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Data Operations/sec";
-
-            try
-            {
-                this.dataOpSec.CategoryName = cat;
-                this.dataOpSec.CounterName = counter;
-                this.dataOpSec.InstanceName = procName;
-
-                return this.dataOpSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            PerformanceCounter dataOpSec = this.counters[counter];
+            return PerfCounterGetData(dataOpSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessReadBytesSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Read Bytes/sec";
-
-            try
-            {
-                this.readBytesSec.CategoryName = cat;
-                this.readBytesSec.CounterName = counter;
-                this.readBytesSec.InstanceName = procName;
-
-                return this.readBytesSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            PerformanceCounter readBytesSec = this.counters[counter];
+            return PerfCounterGetData(readBytesSec, procName, counter);
         }
 
         internal float PerfCounterGetProcessWriteBytesSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Write Bytes/sec";
-
-            try
-            {
-                this.writeBytesSec.CategoryName = cat;
-                this.writeBytesSec.CounterName = counter;
-                this.writeBytesSec.InstanceName = procName;
-
-                return this.writeBytesSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            PerformanceCounter writeBytesSec = this.counters[counter];
+            return PerfCounterGetData(writeBytesSec, procName, counter);
         }
+
         internal float PerfCounterGetProcessDataBytesSec(string procName)
         {
-            string cat = "Process";
             string counter = "IO Data Bytes/sec";
-
-            try
-            {
-                this.dataBytesSec.CategoryName = cat;
-                this.dataBytesSec.CounterName = counter;
-                this.dataBytesSec.InstanceName = procName;
-
-                return this.dataBytesSec.NextValue();
-            }
-            catch (Exception e)
-            {
-                if (e is ArgumentNullException || e is PlatformNotSupportedException
-                    || e is System.ComponentModel.Win32Exception || e is UnauthorizedAccessException)
-                {
-                    this.Logger.LogError($"{cat} {counter} PerfCounter handled error: " + e);
-
-                    // Don't throw.
-                    return 0F;
-                }
-
-                this.Logger.LogError($"{cat} {counter} PerfCounter unhandled error: " + e);
-
-                throw;
-            }
+            PerformanceCounter dataBytesSec = this.counters[counter];
+            return PerfCounterGetData(dataBytesSec, procName, counter);
         }
 
 
@@ -402,64 +250,14 @@ namespace FabricObserver.Observers.Utilities
 
             if (disposing)
             {
-                if (this.diskAverageQueueLengthCounter != null)
+                if (this.counters != null)
                 {
-                    this.diskAverageQueueLengthCounter.Dispose();
-                    this.diskAverageQueueLengthCounter = null;
-                }
+                    foreach (PerformanceCounter counter in counters.Values)
+                    {
+                        counter.Dispose();
+                    }
 
-                if (this.memCommittedBytesPerfCounter != null)
-                {
-                    this.memCommittedBytesPerfCounter.Dispose();
-                    this.memCommittedBytesPerfCounter = null;
-                }
-
-                if (this.cpuTimePerfCounter != null)
-                {
-                    this.cpuTimePerfCounter.Dispose();
-                    this.cpuTimePerfCounter = null;
-                }
-
-                if (this.memProcessPrivateWorkingSetCounter != null)
-                {
-                    this.memProcessPrivateWorkingSetCounter.Dispose();
-                    this.memProcessPrivateWorkingSetCounter = null;
-                }
-
-                if (this.readOpSec != null)
-                {
-                    this.readOpSec.Dispose();
-                    this.readOpSec = null;
-                }
-
-                if (this.writeOpSec != null)
-                {
-                    this.writeOpSec.Dispose();
-                    this.writeOpSec = null;
-                }
-
-                if (this.dataOpSec != null)
-                {
-                    this.dataOpSec.Dispose();
-                    this.dataOpSec = null;
-                }
-
-                if (this.readBytesSec != null)
-                {
-                    this.readBytesSec.Dispose();
-                    this.readBytesSec = null;
-                }
-
-                if (this.writeBytesSec != null)
-                {
-                    this.writeBytesSec.Dispose();
-                    this.writeBytesSec = null;
-                }
-
-                if (this.dataBytesSec != null)
-                {
-                    this.dataBytesSec.Dispose();
-                    this.dataBytesSec = null;
+                    this.counters = null;
                 }
             }
 
