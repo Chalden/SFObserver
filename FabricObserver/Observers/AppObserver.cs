@@ -301,9 +301,9 @@ namespace FabricObserver.Observers
                         this.readOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.ReadOpSec, id, DataCapacity, UseCircularBuffer));
                         this.writeOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.WriteOpSec, id, DataCapacity, UseCircularBuffer));
                         this.dataOpSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.DataOpSec, id, DataCapacity, UseCircularBuffer));
-                        this.readBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.ReadOpSec, id, DataCapacity, UseCircularBuffer));
-                        this.writeBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.WriteOpSec, id, DataCapacity, UseCircularBuffer));
-                        this.dataBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.DataOpSec, id, DataCapacity, UseCircularBuffer));
+                        this.readBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.ReadBytesSec, id, DataCapacity, UseCircularBuffer));
+                        this.writeBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.WriteBytesSec, id, DataCapacity, UseCircularBuffer));
+                        this.dataBytesSec.Add(new FabricResourceUsageData<float>(ErrorWarningProperty.DataBytesSec, id, DataCapacity, UseCircularBuffer));
                     }
 
                     TimeSpan duration = TimeSpan.FromSeconds(15);
