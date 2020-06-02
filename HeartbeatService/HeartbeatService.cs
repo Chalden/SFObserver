@@ -47,14 +47,14 @@ namespace HeartbeatService
             }
         }
 
-        public async Task SubmitHeartbeatAsync(string senderId, string status, DateTime timestamp)
+        public async Task SubmitHeartbeatAsync(Heartbeat heartbeat)
         {
             this.Heartbeats = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("heartbeats");
 
             using (ITransaction tx = this.StateManager.CreateTransaction())
             {
-                await Heartbeats.SetAsync(tx, senderId,
-                    $"[{timestamp.ToString("MM/dd/yyyy HH:mm:ss")}] Sender ID: {senderId}, Status: {status}");
+                await Heartbeats.SetAsync(tx, heartbeat.SenderId,
+                    $"[{heartbeat.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")}] Sender ID: {heartbeat.SenderId}, Status: {heartbeat.Status}");
 
                 await tx.CommitAsync();
             }

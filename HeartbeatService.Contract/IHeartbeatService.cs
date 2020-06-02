@@ -9,6 +9,6 @@ namespace HeartbeatService.Contract
 {
     public interface IHeartbeatService : IService
     {
-        Task SubmitHeartbeatAsync(string senderId, string status, DateTime timestamp);
+        Task SubmitHeartbeatAsync(Heartbeat heartbeat);
     }
 }
