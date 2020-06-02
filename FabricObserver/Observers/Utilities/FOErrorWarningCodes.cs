@@ -55,6 +55,16 @@ namespace FabricObserver.Observers.Utilities
         public const string NodeErrorTooManyActiveEphemeralPorts = "FO031";
         public const string NodeWarningTooManyActiveEphemeralPorts = "FO032";
 
+        // IO
+        public const string AppErrorTooManyOperations = "FO033";
+        public const string AppWarningTooManyOperations = "FO034";
+        public const string NodeErrorTooManyOperations = "FO035";
+        public const string NodeWarningTooManyOperations = "FO036";
+        public const string AppErrorTooManyBytes = "FO037";
+        public const string AppWarningTooManyBytes = "FO038";
+        public const string NodeErrorTooManyBytes = "FO039";
+        public const string NodeWarningTooManyBytes = "FO040";
+
         public static Dictionary<string, string> AppErrorCodesDictionary { get; private set; } = new Dictionary<string, string>
         {
             { Ok, "Ok" },
@@ -70,6 +80,10 @@ namespace FabricObserver.Observers.Utilities
             { AppWarningTooManyActiveTcpPorts, "AppWarningTooManyActiveTcpPorts" },
             { AppErrorTooManyActiveEphemeralPorts, "AppErrorTooManyActiveEphemeralPorts" },
             { AppWarningTooManyActiveEphemeralPorts, "AppWarningTooManyActiveEphemeralPorts" },
+            { AppErrorTooManyOperations, "AppErrorTooManyOperations" },
+            { AppWarningTooManyOperations, "AppWarningTooManyOperations" },
+            { AppErrorTooManyBytes, "AppErrorTooManyBytes" },
+            { AppWarningTooManyBytes, "AppWarningTooManyBytes" },
         };
 
         public static Dictionary<string, string> NodeErrorCodesDictionary { get; private set; } = new Dictionary<string, string>
@@ -95,6 +109,10 @@ namespace FabricObserver.Observers.Utilities
             { WarningTooManyFirewallRules, "NodeWarningTooManyFirewallRules" },
             { NodeErrorTooManyActiveEphemeralPorts, "NodeErrorTooManyActiveEphemeralPorts" },
             { NodeWarningTooManyActiveEphemeralPorts, "NodeWarningTooManyActiveEphemeralPorts" },
+            { NodeErrorTooManyOperations, "NodeErrorTooManyOperations" },
+            { NodeWarningTooManyOperations, "NodeWarningTooManyOperations" },
+            { NodeErrorTooManyBytes, "NodeErrorTooManyBytes" },
+            { NodeWarningTooManyBytes, "NodeWarningTooManyBytes" },
         };
     }
 }

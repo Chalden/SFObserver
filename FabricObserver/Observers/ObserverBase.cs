@@ -769,6 +769,54 @@ namespace FabricObserver.Observers
                         errorWarningCode = (healthState == HealthState.Error) ?
                             FoErrorWarningCodes.NodeErrorTooManyActiveEphemeralPorts : FoErrorWarningCodes.NodeWarningTooManyActiveEphemeralPorts;
                         break;
+                    case ErrorWarningProperty.ReadOpSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyOperations : FoErrorWarningCodes.AppWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.ReadOpSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyOperations : FoErrorWarningCodes.NodeWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.WriteOpSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyOperations : FoErrorWarningCodes.AppWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.WriteOpSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyOperations : FoErrorWarningCodes.NodeWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.DataOpSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyOperations : FoErrorWarningCodes.AppWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.DataOpSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyOperations : FoErrorWarningCodes.NodeWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.ReadBytesSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyBytes : FoErrorWarningCodes.AppWarningTooManyBytes;
+                        break;
+                    case ErrorWarningProperty.ReadBytesSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyBytes : FoErrorWarningCodes.NodeWarningTooManyBytes;
+                        break;
+                    case ErrorWarningProperty.WriteBytesSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyBytes : FoErrorWarningCodes.AppWarningTooManyBytes;
+                        break;
+                    case ErrorWarningProperty.WriteBytesSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyBytes : FoErrorWarningCodes.NodeWarningTooManyBytes;
+                        break;
+                    case ErrorWarningProperty.DataBytesSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyBytes : FoErrorWarningCodes.AppWarningTooManyBytes;
+                        break;
+                    case ErrorWarningProperty.DataBytesSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyBytes : FoErrorWarningCodes.NodeWarningTooManyBytes;
+                        break;
                 }
 
                 var healthMessage = new StringBuilder();
