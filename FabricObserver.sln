@@ -36,11 +36,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService", "WorkerService\WorkerService.csproj", "{3CE1A75A-4ED1-4095-B3C6-EA6E9C4D71A7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F2691185-562D-41C2-9C2E-FDF05A353C50} = {F2691185-562D-41C2-9C2E-FDF05A353C50}
+		{C7A1E9FF-76A0-4478-B1AE-4257EF8B2501} = {C7A1E9FF-76A0-4478-B1AE-4257EF8B2501}
 	EndProjectSection
 EndProject
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "Heartbeat", "Heartbeat\Heartbeat.sfproj", "{7BA544C4-A9A7-4B1F-A77B-19C0A97B002F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HeartbeatService", "HeartbeatService\HeartbeatService.csproj", "{F2691185-562D-41C2-9C2E-FDF05A353C50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeartbeatService.Contract", "HeartbeatService.Contract\HeartbeatService.Contract.csproj", "{C7A1E9FF-76A0-4478-B1AE-4257EF8B2501}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -150,6 +153,14 @@ Global
 		{F2691185-562D-41C2-9C2E-FDF05A353C50}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F2691185-562D-41C2-9C2E-FDF05A353C50}.Release|x64.ActiveCfg = Release|Any CPU
 		{F2691185-562D-41C2-9C2E-FDF05A353C50}.Release|x64.Build.0 = Release|Any CPU
+		{C7A1E9FF-76A0-4478-B1AE-4257EF8B2501}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7A1E9FF-76A0-4478-B1AE-4257EF8B2501}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7A1E9FF-76A0-4478-B1AE-4257EF8B2501}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C7A1E9FF-76A0-4478-B1AE-4257EF8B2501}.Debug|x64.Build.0 = Debug|Any CPU
+		{C7A1E9FF-76A0-4478-B1AE-4257EF8B2501}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7A1E9FF-76A0-4478-B1AE-4257EF8B2501}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7A1E9FF-76A0-4478-B1AE-4257EF8B2501}.Release|x64.ActiveCfg = Release|Any CPU
+		{C7A1E9FF-76A0-4478-B1AE-4257EF8B2501}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -13,7 +13,7 @@ using Microsoft.ServiceFabric.Services.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-using HeartbeatService;
+using HeartbeatService.Contract;
 
 namespace WorkerService
 {
