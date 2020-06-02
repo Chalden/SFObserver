@@ -908,7 +908,7 @@ namespace FabricObserver.Observers
                         AppName = appName,
                         Code = data.ActiveErrorOrWarningCode,
                         EmitLogEvent = true,
-                        HealthMessage = $"{data.Property} is now within normal/expected range.",
+                        HealthMessage = $"{data.Property} is now within normal/expected range.  Average {data.Property}: {Math.Round(Convert.ToDouble(data.AverageDataValue))}{data.Units}",
                         HealthReportTimeToLive = default(TimeSpan),
                         ReportType = healthReportType,
                         State = HealthState.Ok,
@@ -927,7 +927,7 @@ namespace FabricObserver.Observers
                         telemetryData.ApplicationName = appName?.OriginalString ?? string.Empty;
                         telemetryData.Code = data.ActiveErrorOrWarningCode;
                         telemetryData.HealthState = Enum.GetName(typeof(HealthState), HealthState.Ok);
-                        telemetryData.HealthEventDescription = $"{data.Property} is now within normal/expected range.";
+                        telemetryData.HealthEventDescription = $"{data.Property} is now within normal/expected range. Average {data.Property}: {Math.Round(Convert.ToDouble(data.AverageDataValue))}{data.Units}";
                         telemetryData.Metric = data.Property;
                         telemetryData.Source = ObserverConstants.FabricObserverName;
                         telemetryData.Value = Math.Round(Convert.ToDouble(data.AverageDataValue), 1);
