@@ -35,13 +35,29 @@ namespace FabricObserver.Observers.MachineInfoModel
 
         public int NetworkWarningEphemeralPorts { get; set; }
 
-        public int OpSecWarning { get; set; }
+        public int ReadOpSecWarning { get; set; }
 
-        public int OpSecError { get; set; }
+        public int ReadOpSecError { get; set; }
 
-        public int OpBytesWarning { get; set; }
+        public int ReadOpBytesWarning { get; set; }
 
-        public int OpBytesError { get; set; }
+        public int ReadOpBytesError { get; set; }
+
+        public int WriteOpSecWarning { get; set; }
+
+        public int WriteOpSecError { get; set; }
+
+        public int WriteOpBytesWarning { get; set; }
+
+        public int WriteOpBytesError { get; set; }
+
+        public int DataOpSecWarning { get; set; }
+
+        public int DataOpSecError { get; set; }
+
+        public int DataOpBytesWarning { get; set; }
+
+        public int DataOpBytesError { get; set; }
 
         public int NetworkErrorFirewallRules { get; set; }
 
@@ -64,10 +80,18 @@ namespace FabricObserver.Observers.MachineInfoModel
                                              $"NetworkWarningActivePorts: {this.NetworkWarningActivePorts}\n" +
                                              $"NetworkErrorEphemeralPorts: {this.NetworkErrorEphemeralPorts}\n" +
                                              $"NetworkWarningEphemeralPorts: {this.NetworkWarningEphemeralPorts}\n" +
-                                             $"OpSecWarning: {this.OpSecWarning}\n" +
-                                             $"OpSecError: {this.OpSecError}\n" +
-                                             $"OpBytesWarning: {this.OpBytesWarning}\n" +
-                                             $"OpBytesError: {this.OpBytesError}\n" +
+                                             $"ReadOpSecWarning: {this.ReadOpSecWarning}\n" +
+                                             $"ReadOpSecError: {this.ReadOpSecError}\n" +
+                                             $"ReadOpBytesWarning: {this.ReadOpBytesWarning}\n" +
+                                             $"ReadOpBytesError: {this.ReadOpBytesError}\n" +
+                                             $"WriteOpSecWarning: {this.WriteOpSecWarning}\n" +
+                                             $"WriteOpSecError: {this.WriteOpSecError}\n" +
+                                             $"WriteOpBytesWarning: {this.WriteOpBytesWarning}\n" +
+                                             $"WriteOpBytesError: {this.WriteOpBytesError}\n" +
+                                             $"DataOpSecWarning: {this.DataOpSecWarning}\n" +
+                                             $"DataOpSecError: {this.DataOpSecError}\n" +
+                                             $"DataOpBytesWarning: {this.DataOpBytesWarning}\n" +
+                                             $"DataOpBytesError: {this.DataOpBytesError}\n" +
                                              $"NetworkErrorFirewallRules: {this.NetworkErrorFirewallRules}\n" +
                                              $"NetworkWarningFirewallRules: {this.NetworkWarningFirewallRules}\n" +
                                              $"DumpProcessOnError: {this.DumpProcessOnError}\n";

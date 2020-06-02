@@ -901,14 +901,12 @@ namespace FabricObserver.Observers
             }
             else
             {
-                if (data.ActiveErrorOrWarning)
-                {
-                    var report = new HealthReport
+                var report = new HealthReport
                     {
                         AppName = appName,
                         Code = data.ActiveErrorOrWarningCode,
                         EmitLogEvent = true,
-                        HealthMessage = $"{data.Property} is now within normal/expected range.  Average {data.Property}: {Math.Round(Convert.ToDouble(data.AverageDataValue))}{data.Units}",
+                        HealthMessage = $"{data.Property} is now within normal/expected range. Average {data.Property}: {Math.Round(Convert.ToDouble(data.AverageDataValue))}{data.Units}",
                         HealthReportTimeToLive = default(TimeSpan),
                         ReportType = healthReportType,
                         State = HealthState.Ok,
@@ -941,7 +939,6 @@ namespace FabricObserver.Observers
                     data.ActiveErrorOrWarning = false;
                     data.ActiveErrorOrWarningCode = FoErrorWarningCodes.Ok;
                     this.HasActiveFabricErrorOrWarning = false;
-                }
             }
 
             // No need to keep data in memory.
