@@ -88,7 +88,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HeartbeatService.cs" />
+    <Compile Include="Heartbeat.cs" />
     <Compile Include="IHeartbeatService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
