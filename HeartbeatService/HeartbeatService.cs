@@ -25,7 +25,7 @@ namespace HeartbeatService
             : base(context)
         { }
 
-        private IReliableDictionary<string, string> Heartbeats;
+        private IReliableDictionary<string, Heartbeat> Heartbeats;
 
         /// <summary>
         /// This is the main entry point for your service replica.
@@ -49,12 +49,11 @@ namespace HeartbeatService
 
         public async Task SubmitHeartbeatAsync(Heartbeat heartbeat)
         {
-            this.Heartbeats = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("heartbeats");
+            this.Heartbeats = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, Heartbeat>>("heartbeats");
 
             using (ITransaction tx = this.StateManager.CreateTransaction())
             {
-                await Heartbeats.SetAsync(tx, heartbeat.SenderId,
-                    $"[{heartbeat.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")}] Sender ID: {heartbeat.SenderId}, Status: {heartbeat.Status}");
+                await Heartbeats.SetAsync(tx, heartbeat.SenderId, heartbeat);
 
                 await tx.CommitAsync();
             }
