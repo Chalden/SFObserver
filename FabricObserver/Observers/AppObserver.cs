@@ -689,8 +689,8 @@ namespace FabricObserver.Observers
                         // readOpSec
                         this.ProcessResourceDataReportHealth(
                             this.readOpSec.FirstOrDefault(x => x.Id == id),
-                            app.OpSecError,
-                            app.OpSecWarning,
+                            app.ReadOpSecError,
+                            app.ReadOpSecWarning,
                             healthReportTimeToLive,
                             HealthReportType.Application,
                             repOrInst);
@@ -698,8 +698,8 @@ namespace FabricObserver.Observers
                         // writeOpSec
                         this.ProcessResourceDataReportHealth(
                             this.writeOpSec.FirstOrDefault(x => x.Id == id),
-                            app.OpSecError,
-                            app.OpSecWarning,
+                            app.WriteOpSecError,
+                            app.WriteOpSecWarning,
                             healthReportTimeToLive,
                             HealthReportType.Application,
                             repOrInst);
@@ -707,8 +707,8 @@ namespace FabricObserver.Observers
                         // dataOpSec
                         this.ProcessResourceDataReportHealth(
                             this.dataOpSec.FirstOrDefault(x => x.Id == id),
-                            app.OpSecError,
-                            app.OpSecWarning,
+                            app.DataOpSecError,
+                            app.DataOpSecWarning,
                             healthReportTimeToLive,
                             HealthReportType.Application,
                             repOrInst);
@@ -716,8 +716,8 @@ namespace FabricObserver.Observers
                         // readBytesSec
                         this.ProcessResourceDataReportHealth(
                             this.readBytesSec.FirstOrDefault(x => x.Id == id),
-                            app.OpBytesError,
-                            app.OpBytesWarning,
+                            app.ReadOpBytesError,
+                            app.ReadOpBytesWarning,
                             healthReportTimeToLive,
                             HealthReportType.Application,
                             repOrInst);
@@ -725,8 +725,8 @@ namespace FabricObserver.Observers
                         // writeBytesSec
                         this.ProcessResourceDataReportHealth(
                             this.writeBytesSec.FirstOrDefault(x => x.Id == id),
-                            app.OpBytesError,
-                            app.OpBytesWarning,
+                            app.WriteOpBytesError,
+                            app.WriteOpBytesWarning,
                             healthReportTimeToLive,
                             HealthReportType.Application,
                             repOrInst);
@@ -734,8 +734,8 @@ namespace FabricObserver.Observers
                         // dataBytesSec
                         this.ProcessResourceDataReportHealth(
                             this.dataBytesSec.FirstOrDefault(x => x.Id == id),
-                            app.OpBytesError,
-                            app.OpBytesWarning,
+                            app.DataOpBytesError,
+                            app.DataOpBytesWarning,
                             healthReportTimeToLive,
                             HealthReportType.Application,
                             repOrInst);
