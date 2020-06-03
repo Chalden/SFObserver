@@ -4,6 +4,7 @@ using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using HeartbeatService.Contract;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Client;
@@ -15,10 +16,6 @@ using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace HeartbeatService
 {
-    public interface IHeartbeatService : IService
-    {
-        Task SubmitHeartbeatAsync(string senderId, string status, DateTime timestamp);
-    }
     /// <summary>
     /// An instance of this class is created for each service replica by the Service Fabric runtime.
     /// </summary>
@@ -28,7 +25,7 @@ namespace HeartbeatService
             : base(context)
         { }
 
-        private IReliableDictionary<string, string> Heartbeats;
+        private IReliableDictionary<string, Heartbeat> Heartbeats;
 
         /// <summary>
         /// This is the main entry point for your service replica.
@@ -50,14 +47,13 @@ namespace HeartbeatService
             }
         }
 
-        public async Task SubmitHeartbeatAsync(string senderId, string status, DateTime timestamp)
+        public async Task SubmitHeartbeatAsync(Heartbeat heartbeat)
         {
-            this.Heartbeats = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("heartbeats");
+            this.Heartbeats = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, Heartbeat>>("heartbeats");
 
             using (ITransaction tx = this.StateManager.CreateTransaction())
             {
-                await Heartbeats.SetAsync(tx, senderId,
-                    $"[{timestamp.ToString("MM/dd/yyyy HH:mm:ss")}] Sender ID: {senderId}, Status: {status}");
+                await Heartbeats.SetAsync(tx, heartbeat.SenderId, heartbeat);
 
                 await tx.CommitAsync();
             }

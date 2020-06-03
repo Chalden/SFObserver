@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HeartbeatService.Contract\HeartbeatService.Contract.csproj" />
     <ProjectReference Include="..\HeartbeatService\HeartbeatService.csproj" />
   </ItemGroup>
 
