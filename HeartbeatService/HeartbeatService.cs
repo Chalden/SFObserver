@@ -66,8 +66,8 @@ namespace HeartbeatService
 
             using (ITransaction tx = this.StateManager.CreateTransaction())
             {
-                var enumerable  = this.Heartbeats.CreateEnumerableAsync(tx);
-                var enumerator = enumerable.Result.GetAsyncEnumerator();
+                var enumerable  = await this.Heartbeats.CreateEnumerableAsync(tx);
+                var enumerator = enumerable.GetAsyncEnumerator();
                 while (nextValue)
                 {
                     Heartbeat currentHeartbeat = enumerator.Current.Value;
