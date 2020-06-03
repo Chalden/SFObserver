@@ -58,5 +58,24 @@ namespace HeartbeatService
                 await tx.CommitAsync();
             }
         }
+
+        public async Task<List<Heartbeat>> GetAllHeartbeatsAsync(CancellationToken cancellationToken)
+        {
+            bool nextValue = true;
+            List<Heartbeat> heartbeatsList = new List<Heartbeat>();
+
+            using (ITransaction tx = this.StateManager.CreateTransaction())
+            {
+                var enumerable  = this.Heartbeats.CreateEnumerableAsync(tx);
+                var enumerator = enumerable.Result.GetAsyncEnumerator();
+                while (nextValue)
+                {
+                    Heartbeat currentHeartbeat = enumerator.Current.Value;
+                    heartbeatsList.Add(currentHeartbeat);
+                    nextValue = await enumerator.MoveNextAsync(cancellationToken);
+                }
+            }
+            return heartbeatsList;
+        }
     }
 }
