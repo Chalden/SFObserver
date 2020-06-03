@@ -58,7 +58,7 @@ namespace FabricObserver.Observers.Utilities
         private float PerfCounterGetData(PerformanceCounter perfCounter, string procName, string counter)
         {
             string cat;
-            if (counter.Equals("Avg. Disk Queue Length"))
+            if(counter.Equals("Avg. Disk Queue Length"))
             {
                 cat = "LogicalDisk";
             }
