@@ -39,7 +39,7 @@ namespace FabricObserver.Observers.Utilities
                 counters.Add("IO Data Operations/sec", new PerformanceCounter());
                 counters.Add("IO Read Bytes/sec", new PerformanceCounter());
                 counters.Add("IO Write Bytes/sec", new PerformanceCounter());
-                counters.Add("IO Data Bytes / sec", new PerformanceCounter());
+                counters.Add("IO Data Bytes/sec", new PerformanceCounter());
             }
             catch (PlatformNotSupportedException)
             {
