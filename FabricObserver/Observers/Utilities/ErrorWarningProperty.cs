@@ -33,7 +33,7 @@ namespace FabricObserver.Observers.Utilities
         public const string WriteOpSec = "IO Write Operations/sec";
         public const string DataOpSec = "IO Data Operations/sec";
         public const string ReadBytesSec = "IO Read Bytes/sec";
-        public const string WriteByteSec = "IO Write Bytes/sec";
+        public const string WriteBytesSec = "IO Write Bytes/sec";
         public const string DataBytesSec = "IO Data Bytes/sec";
     }
 }

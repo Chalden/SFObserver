@@ -769,6 +769,54 @@ namespace FabricObserver.Observers
                         errorWarningCode = (healthState == HealthState.Error) ?
                             FoErrorWarningCodes.NodeErrorTooManyActiveEphemeralPorts : FoErrorWarningCodes.NodeWarningTooManyActiveEphemeralPorts;
                         break;
+                    case ErrorWarningProperty.ReadOpSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyOperations : FoErrorWarningCodes.AppWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.ReadOpSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyOperations : FoErrorWarningCodes.NodeWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.WriteOpSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyOperations : FoErrorWarningCodes.AppWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.WriteOpSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyOperations : FoErrorWarningCodes.NodeWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.DataOpSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyOperations : FoErrorWarningCodes.AppWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.DataOpSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyOperations : FoErrorWarningCodes.NodeWarningTooManyOperations;
+                        break;
+                    case ErrorWarningProperty.ReadBytesSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyBytes : FoErrorWarningCodes.AppWarningTooManyBytes;
+                        break;
+                    case ErrorWarningProperty.ReadBytesSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyBytes : FoErrorWarningCodes.NodeWarningTooManyBytes;
+                        break;
+                    case ErrorWarningProperty.WriteBytesSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyBytes : FoErrorWarningCodes.AppWarningTooManyBytes;
+                        break;
+                    case ErrorWarningProperty.WriteBytesSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyBytes : FoErrorWarningCodes.NodeWarningTooManyBytes;
+                        break;
+                    case ErrorWarningProperty.DataBytesSec when replicaOrInstance != null:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.AppErrorTooManyBytes : FoErrorWarningCodes.AppWarningTooManyBytes;
+                        break;
+                    case ErrorWarningProperty.DataBytesSec:
+                        errorWarningCode = (healthState == HealthState.Error) ?
+                            FoErrorWarningCodes.NodeErrorTooManyBytes : FoErrorWarningCodes.NodeWarningTooManyBytes;
+                        break;
                 }
 
                 var healthMessage = new StringBuilder();
@@ -853,14 +901,12 @@ namespace FabricObserver.Observers
             }
             else
             {
-                if (data.ActiveErrorOrWarning)
-                {
-                    var report = new HealthReport
+                var report = new HealthReport
                     {
                         AppName = appName,
                         Code = data.ActiveErrorOrWarningCode,
                         EmitLogEvent = true,
-                        HealthMessage = $"{data.Property} is now within normal/expected range.",
+                        HealthMessage = $"{data.Property} is now within normal/expected range. Average {data.Property}: {Math.Round(Convert.ToDouble(data.AverageDataValue))}{data.Units}",
                         HealthReportTimeToLive = default(TimeSpan),
                         ReportType = healthReportType,
                         State = HealthState.Ok,
@@ -879,7 +925,7 @@ namespace FabricObserver.Observers
                         telemetryData.ApplicationName = appName?.OriginalString ?? string.Empty;
                         telemetryData.Code = data.ActiveErrorOrWarningCode;
                         telemetryData.HealthState = Enum.GetName(typeof(HealthState), HealthState.Ok);
-                        telemetryData.HealthEventDescription = $"{data.Property} is now within normal/expected range.";
+                        telemetryData.HealthEventDescription = $"{data.Property} is now within normal/expected range. Average {data.Property}: {Math.Round(Convert.ToDouble(data.AverageDataValue))}{data.Units}";
                         telemetryData.Metric = data.Property;
                         telemetryData.Source = ObserverConstants.FabricObserverName;
                         telemetryData.Value = Math.Round(Convert.ToDouble(data.AverageDataValue), 1);
@@ -893,7 +939,6 @@ namespace FabricObserver.Observers
                     data.ActiveErrorOrWarning = false;
                     data.ActiveErrorOrWarningCode = FoErrorWarningCodes.Ok;
                     this.HasActiveFabricErrorOrWarning = false;
-                }
             }
 
             // No need to keep data in memory.

@@ -24,10 +24,18 @@
     "memoryWarningLimitPercent": 30,
     "networkWarningActivePorts": 80,
     "networkWarningEphemeralPorts": 40,
-    "opSecWarning": 0,
-    "opSecError": 1,
-    "opBytesWarning": 0,
-    "opBytesError": 1
+    "readOpSecWarning": 0,
+    "readOpSecError": 1,
+    "readOpBytesWarning": 0,
+    "readOpBytesError": 10,
+    "writeOpSecWarning": 0,
+    "writeOpSecError": 2,
+    "writeOpBytesWarning": 0,
+    "writeOpBytesError": 20,
+    "dataOpSecWarning": 0,
+    "dataOpSecError": 3,
+    "dataOpBytesWarning": 0,
+    "dataOpBytesError": 30
   },
   {
     "targetApp": "fabric:/FabricObserverWebApi",
